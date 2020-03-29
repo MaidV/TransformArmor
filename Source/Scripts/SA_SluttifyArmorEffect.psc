@@ -3,8 +3,7 @@ Scriptname SA_SluttifyArmorEffect extends ActiveMagicEffect
 
 Event OnEffectStart(Actor Target, Actor Caster)
     Form pureClothes = Target.GetWornForm(4)
-    Int pureIndex = JsonUtil.FormListFind("Sluttify Armor/ArmorMap.json", "pure", pureClothes)
-    Form slutClothes = JsonUtil.FormListGet("Sluttify Armor/ArmorMap.json", "Slutty", pureIndex)
+    Form slutClothes = JFormDB.getForm(pureClothes, ".SluttifyArmor.slutForm")
 
     ; Name will be empty on invalid forms
     If slutClothes.GetName() == ""
@@ -13,7 +12,7 @@ Event OnEffectStart(Actor Target, Actor Caster)
     EndIf
 
     Int slotMask = 4
-    If (pureIndex >= 0)
+    If pureClothes.GetName() != ""
         Debug.MessageBox("Sluttifying " + pureClothes.GetName() + ". All that excess material was too constricting anyway.")
         Float health = WornObject.GetItemHealthPercent(Target, 0, slotMask)
         Enchantment sourceEnchant = WornObject.GetEnchantment(Target, 0, slotMask)

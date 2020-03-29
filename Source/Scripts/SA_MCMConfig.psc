@@ -1,17 +1,14 @@
 Scriptname SA_MCMConfig extends SKI_ConfigBase
 
-import AddItemMenuSE
-
-int spellEnabledOID
-bool spellEnabled = false
-
-int mapRefreshOID
-
 string[] pureList
 string[] slutList
+
+int spellEnabledOID
+int mapRefreshOID
 int pureMenuOID
 int slutMenuOID
-; int wornMenuOID
+
+bool spellEnabled = false
 int mapIndex = 0
 
 Spell Property SA_SluttifyArmorSpell Auto
@@ -26,17 +23,29 @@ Function ToggleSpell(Spell tarSpell)
 EndFunction
 
 Function RefreshMapList()
-    int nForms = JsonUtil.FormListCount("Sluttify Armor/ArmorMap.json", "pure")
+    string armorJson = "Data/skse/plugins/StorageUtilData/Sluttify Armor/ArmorMapJC.json"
     pureList = new string[128]
     slutList = new string[128]
-    ; wornList = new string[128]
 
+    JDB.solveObjSetter(".SluttifyArmor", JValue.readFromFile(armorJson), true)
+
+    int map = JDB.solveObj(".SluttifyArmor")
+    Debug.trace("Starting map list")
+    Form pureForm = JFormMap.nextKey(map)
     int i = 0
-    while i < nForms && i < 128
-        pureList[i] = JsonUtil.FormListGet("Sluttify Armor/ArmorMap.json", "pure", i).GetName()
-        slutList[i] = JsonUtil.FormListGet("Sluttify Armor/ArmorMap.json", "slutty", i).GetName()
+    While pureForm != None
+        Form slutForm = JFormDB.getForm(pureForm, ".SluttifyArmor.slutForm")
+
+        If i < 128
+            pureList[i] = pureForm.GetName()
+            slutList[i] = slutForm.GetName()
+        EndIf
+
         i += 1
+        pureForm = JFormMap.nextKey(map, pureForm)
     EndWhile
+    
+    Debug.trace("Ending map list " + i)
 EndFunction
 
 Event OnPageReset(string page)
@@ -69,13 +78,17 @@ Event OnOptionMenuOpen(int option)
         SetMenuDialogOptions(pureList)
         SetMenuDialogStartIndex(mapIndex)
         SetMenuDialogDefaultIndex(0)
-    EndIf
+    ElseIf (option == slutMenuOID)
+        SetMenuDialogOptions(slutList)
+        SetMenuDialogStartIndex(mapIndex)
+        SetMenuDialogDefaultIndex(0)
+    EndIf    
 EndEvent
 
-event OnOptionMenuAccept(int option, int index)
+Event OnOptionMenuAccept(int option, int index)
     if (option == pureMenuOID || option == slutMenuOID)
         mapIndex = index
         SetMenuOptionValue(pureMenuOID, pureList[mapIndex])
         SetMenuOptionValue(slutMenuOID, slutList[mapIndex])
     endIf
-endEvent
+EndEvent

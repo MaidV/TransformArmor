@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+echo $(date)
 
 skyrim="C:\games\Steam\steamapps\common\Skyrim Special Edition"
 skyrimdata="${skyrim}\Data"
