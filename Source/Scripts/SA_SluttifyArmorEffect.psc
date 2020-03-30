@@ -18,11 +18,16 @@ Event OnEffectStart(Actor Target, Actor Caster)
         Enchantment sourceEnchant = WornObject.GetEnchantment(Target, 0, slotMask)
         Float sourceMaxCharge = WornObject.GetItemMaxCharge(Target, 0, slotMask)
 
-        If (slutClothes != None)
-            Target.RemoveItem(pureClothes)
-            Target.EquipItem(slutClothes)
-            WornObject.SetItemHealthPercent(Target, 0, slotMask, health)
+        Debug.trace("[SA] Found slut armor: " + slutClothes.GetName())
+        Target.RemoveItem(pureClothes)
+        Debug.trace("[SA] Removed item: " + pureClothes.GetName())
+        Target.EquipItem(slutClothes)
+        Debug.trace("[SA] Equipped armor: " + slutClothes.GetName())
+        WornObject.SetItemHealthPercent(Target, 0, slotMask, health)
+        Debug.trace("[SA] Tempered armor: " + slutClothes.GetName())
+        If sourceEnchant != None
             WornObject.SetEnchantment(Target, 0, slotMask, sourceEnchant, sourceMaxCharge)
+            Debug.trace("[SA] Enchanted armor: " + slutClothes.GetName())
         EndIf
     Else
         Debug.MessageBox("Failed to sluttify " + pureClothes.GetName() + ".")
