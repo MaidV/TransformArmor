@@ -1,5 +1,7 @@
 Scriptname SA_MCMConfig extends SKI_ConfigBase
 
+int version = 000003
+
 string[] pureList
 string[] slutList
 
@@ -48,8 +50,26 @@ Function RefreshMapList()
     Debug.trace("Ending map list " + i)
 EndFunction
 
+int Function GetVersion()
+    return version
+EndFunction
+
+string Function GetStrVersion()
+    int versint = GetVersion()
+    int major = versint / (100 * 100)
+    int minor = (versint / 100) % 100
+    int patch = versint % 100
+    return (major as string) + "." + (minor as string) + "." + (patch as string)
+EndFunction
+
+Event OnVersionUpdate(int vers)
+	Debug.Notification("Sluttify Armor " + GetStrVersion() + " loading, do not open MCM.")    
+    RefreshMapList()
+	Debug.Notification("Sluttify Armor " + GetStrVersion() + " loaded.")
+EndEvent
+
+
 Event OnPageReset(string page)
-    {Called when a new page is selected, including the initial empty page}
     SetCursorFillMode(TOP_TO_BOTTOM)
     SetCursorPosition(0)
 
