@@ -10,7 +10,7 @@ int mapRefreshOID
 int pureMenuOID
 int slutMenuOID
 
-bool spellEnabled = false
+bool spellEnabled = true
 int mapIndex = 0
 
 Spell Property SA_SluttifyArmorSpell Auto
@@ -32,7 +32,6 @@ Function RefreshMapList()
     JDB.solveObjSetter(".SluttifyArmor", JValue.readFromFile(armorJson), true)
 
     int map = JDB.solveObj(".SluttifyArmor")
-    Debug.trace("Starting map list")
     Form pureForm = JFormMap.nextKey(map)
     int i = 0
     While pureForm != None
@@ -46,8 +45,6 @@ Function RefreshMapList()
         i += 1
         pureForm = JFormMap.nextKey(map, pureForm)
     EndWhile
-    
-    Debug.trace("Ending map list " + i)
 EndFunction
 
 int Function GetVersion()
@@ -62,12 +59,22 @@ string Function GetStrVersion()
     return (major as string) + "." + (minor as string) + "." + (patch as string)
 EndFunction
 
-Event OnVersionUpdate(int vers)
-	Debug.Notification("Sluttify Armor " + GetStrVersion() + " loading, do not open MCM.")    
+int Function Init()
+    Debug.Notification("Sluttify Armor " + GetStrVersion() + " loading, do not open MCM.")
     RefreshMapList()
-	Debug.Notification("Sluttify Armor " + GetStrVersion() + " loaded.")
-EndEvent
+    ToggleSpell(SA_SluttifyArmorSpell)
+    Debug.Notification("Sluttify Armor " + GetStrVersion() + " loaded.")
+EndFunction
 
+; Event OnConfigInit()
+;     ModName = "Sluttify Armor"
+;     Init()
+; EndEvent
+
+Event OnVersionUpdate(int vers)
+    ; ModName = "Sluttify Armor"
+    Init()
+EndEvent
 
 Event OnPageReset(string page)
     SetCursorFillMode(TOP_TO_BOTTOM)
