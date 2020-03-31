@@ -25,10 +25,11 @@ Function ToggleSpell(Spell tarSpell)
 EndFunction
 
 Function RefreshMapList()
+    Debug.Trace("[SA] Refreshing armor list")
     string armorJson = "Data/skse/plugins/StorageUtilData/Sluttify Armor/ArmorMapJC.json"
     pureList = new string[128]
     slutList = new string[128]
-
+    ; JDB.solveObjSetter(".SluttifyArmor", 0, false)
     JDB.solveObjSetter(".SluttifyArmor", JValue.readFromFile(armorJson), true)
 
     int map = JDB.solveObj(".SluttifyArmor")
@@ -45,6 +46,7 @@ Function RefreshMapList()
         i += 1
         pureForm = JFormMap.nextKey(map, pureForm)
     EndWhile
+    Debug.Trace("[SA] Refreshing armor list complete")
 EndFunction
 
 int Function GetVersion()
@@ -66,14 +68,18 @@ int Function Init()
     Debug.Notification("Sluttify Armor " + GetStrVersion() + " loaded.")
 EndFunction
 
-; Event OnConfigInit()
-;     ModName = "Sluttify Armor"
-;     Init()
-; EndEvent
+Event OnConfigInit()
+    ModName = "Sluttify Armor"
+    Debug.Trace("[SA] Initializing")
+    Init()
+    Debug.Trace("[SA] Initializing complete")
+EndEvent
 
 Event OnVersionUpdate(int vers)
-    ; ModName = "Sluttify Armor"
+    ModName = "Sluttify Armor"
+    Debug.Trace("[SA] Updating version")
     Init()
+    Debug.Trace("[SA] Done updating version")
 EndEvent
 
 Event OnPageReset(string page)
