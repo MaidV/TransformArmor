@@ -7,12 +7,15 @@ string[] slutList
 
 int spellEnabledOID
 int perkEnabledOID
+int perkSliderOID
 int mapRefreshOID
 int pureMenuOID
 int slutMenuOID
 
 bool spellEnabled = true
 bool perkEnabled = false
+float Property containerProbability Auto
+
 int mapIndex = 0
 
 Spell Property SA_SluttifyArmorSpell Auto
@@ -92,11 +95,28 @@ Event OnPageReset(string page)
 
     spellEnabled = Game.GetPlayer().HasSpell(SA_SluttifyArmorSpell)
     spellEnabledOID = AddToggleOption("Spell Enabled", spellEnabled)
-    perkEnabledOID = AddToggleOption("Perk Enabled", perkEnabled)
+    perkEnabledOID = AddToggleOption("Container chance enabled", perkEnabled)
+    perkSliderOID = AddSliderOption("Probability?", containerProbability, "{1} percent")
     mapRefreshOID = AddTextOption("Refresh armor map", None)
     SetCursorFillMode(LEFT_TO_RIGHT)
     pureMenuOID = AddMenuOption("Pure clothes list", None)
     slutMenuOID = AddMenuOption("Slutty clothes list", None)
+EndEvent
+
+Event OnOptionSliderOpen(int option)
+	If (option == perkSliderOID)
+		SetSliderDialogStartValue(containerProbability)
+		SetSliderDialogDefaultValue(2.0)
+		SetSliderDialogRange(0.0, 100.0)
+		SetSliderDialogInterval(0.5)
+    EndIf
+EndEvent
+
+Event OnOptionSliderAccept(int option, float value)
+	If (option == perkSliderOID)
+		containerProbability = value
+		SetSliderOptionValue(perkSliderOID, containerProbability, "{1} percent")
+    EndIf
 EndEvent
 
 Event OnOptionSelect(int option)
