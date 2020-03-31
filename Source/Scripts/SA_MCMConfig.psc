@@ -6,14 +6,17 @@ string[] pureList
 string[] slutList
 
 int spellEnabledOID
+int perkEnabledOID
 int mapRefreshOID
 int pureMenuOID
 int slutMenuOID
 
 bool spellEnabled = true
+bool perkEnabled = false
 int mapIndex = 0
 
 Spell Property SA_SluttifyArmorSpell Auto
+Perk Property SA_ActivateContainerPerk Auto
 
 Function ToggleSpell(Spell tarSpell)
     Actor playerRef = Game.GetPlayer()
@@ -24,19 +27,28 @@ Function ToggleSpell(Spell tarSpell)
     EndIf
 EndFunction
 
+Function TogglePerk(Perk tarPerk)
+    Actor playerRef = Game.GetPlayer()
+    If (perkEnabled)
+        playerRef.AddPerk(tarPerk)
+    Else
+        playerRef.RemovePerk(tarPerk)
+    EndIf
+EndFunction
+
 Function RefreshMapList()
     Debug.Trace("[SA] Refreshing armor list")
     string armorJson = "Data/skse/plugins/StorageUtilData/Sluttify Armor/ArmorMapJC.json"
     pureList = new string[128]
     slutList = new string[128]
-    ; JDB.solveObjSetter(".SluttifyArmor", 0, false)
-    JDB.solveObjSetter(".SluttifyArmor", JValue.readFromFile(armorJson), true)
 
-    int map = JDB.solveObj(".SluttifyArmor")
+    JDB.solveObjSetter(".SA_ArmorMap", JValue.readFromFile(armorJson), true)
+
+    int map = JDB.solveObj(".SA_ArmorMap")
     Form pureForm = JFormMap.nextKey(map)
     int i = 0
     While pureForm != None
-        Form slutForm = JFormDB.getForm(pureForm, ".SluttifyArmor.slutForm")
+        Form slutForm = JFormDB.getForm(pureForm, ".SA_ArmorMap.slutForm")
 
         If i < 128
             pureList[i] = pureForm.GetName()
@@ -61,24 +73,16 @@ string Function GetStrVersion()
     return (major as string) + "." + (minor as string) + "." + (patch as string)
 EndFunction
 
-int Function Init()
+Event OnConfigInit()
     Debug.Notification("Sluttify Armor " + GetStrVersion() + " loading, do not open MCM.")
     RefreshMapList()
     ToggleSpell(SA_SluttifyArmorSpell)
     Debug.Notification("Sluttify Armor " + GetStrVersion() + " loaded.")
-EndFunction
-
-Event OnConfigInit()
-    ModName = "Sluttify Armor"
-    Debug.Trace("[SA] Initializing")
-    Init()
-    Debug.Trace("[SA] Initializing complete")
 EndEvent
 
 Event OnVersionUpdate(int vers)
-    ModName = "Sluttify Armor"
     Debug.Trace("[SA] Updating version")
-    Init()
+    OnConfigInit()
     Debug.Trace("[SA] Done updating version")
 EndEvent
 
@@ -88,6 +92,7 @@ Event OnPageReset(string page)
 
     spellEnabled = Game.GetPlayer().HasSpell(SA_SluttifyArmorSpell)
     spellEnabledOID = AddToggleOption("Spell Enabled", spellEnabled)
+    perkEnabledOID = AddToggleOption("Perk Enabled", perkEnabled)
     mapRefreshOID = AddTextOption("Refresh armor map", None)
     SetCursorFillMode(LEFT_TO_RIGHT)
     pureMenuOID = AddMenuOption("Pure clothes list", None)
@@ -99,6 +104,10 @@ Event OnOptionSelect(int option)
         spellEnabled = !spellEnabled
         SetToggleOptionValue(spellEnabledOID, spellEnabled)
         ToggleSpell(SA_SluttifyArmorSpell)
+    ElseIf (option == perkEnabledOID)
+        perkEnabled = !perkEnabled
+        SetToggleOptionValue(perkEnabledOID, perkEnabled)
+        TogglePerk(SA_ActivateContainerPerk)
     ElseIf (option == mapRefreshOID)
         RefreshMapList()
         SetMenuOptionValue(pureMenuOID, pureList[mapIndex])
@@ -115,7 +124,7 @@ Event OnOptionMenuOpen(int option)
         SetMenuDialogOptions(slutList)
         SetMenuDialogStartIndex(mapIndex)
         SetMenuDialogDefaultIndex(0)
-    EndIf    
+    EndIf
 EndEvent
 
 Event OnOptionMenuAccept(int option, int index)
