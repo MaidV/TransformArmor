@@ -1,6 +1,6 @@
 Scriptname SA_MCMConfig extends SKI_ConfigBase
 
-int version = 000003
+int version = 000004
 
 string[] pureList
 string[] slutList
@@ -78,6 +78,7 @@ EndFunction
 
 Event OnConfigInit()
     Debug.Notification("Sluttify Armor " + GetStrVersion() + " loading, do not open MCM.")
+    ModName = "Sluttify Armor"
     RefreshMapList()
     ToggleSpell(SA_SluttifyArmorSpell)
     Debug.Notification("Sluttify Armor " + GetStrVersion() + " loaded.")

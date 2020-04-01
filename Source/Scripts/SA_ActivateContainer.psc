@@ -8,7 +8,7 @@ Function Fragment_5(ObjectReference akTargetRef, Actor akActor)
     debug.trace("[SA] Activate container")
     float r = Utility.RandomFloat(0, 100)
     If r < SA_MCM.containerProbability || true
-        SA_Library.SluttifyEquipped(akActor, None)
+        SA_Library.SluttifyEquipped(akActor, None, false)
     EndIf
 ;END CODE
 EndFunction

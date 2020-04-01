@@ -1,12 +1,19 @@
 Scriptname SA_Library
 
-Function SluttifyEquipped(Actor Target, Actor Caster) global
+Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) global
     Form pureClothes = Target.GetWornForm(4)
+    If pureClothes == None
+        If voluntary
+            Debug.Notification("Can't sluttify armor if you're naked!")
+        EndIf
+        return
+    EndIf
+
     Form slutClothes = JFormDB.getForm(pureClothes, ".SA_ArmorMap.slutForm")
 
     ; Name will be empty on invalid forms
     If slutClothes.GetName() == ""
-        Debug.MessageBox("Unable to find slut variant of " + pureClothes.GetName() + ".")
+        Debug.Notification("Unable to find slut variant of " + pureClothes.GetName() + ".")
         return
     EndIf
 
