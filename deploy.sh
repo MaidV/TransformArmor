@@ -5,7 +5,7 @@ major=$((versint / 10000))
 minor=$(((versint / 100) % 100))
 patch=$((versint % 100))
 version="$major.$minor.$patch"
-archive="SluttifyArmor $version.7z"
+archive="Sluttify Armor $version.7z"
 
 echo "Verifying version $version"
 
@@ -33,7 +33,7 @@ fi
 
 echo "Version $version verified, deploying"
 
-7z a "$archive" Source/Scripts/*./psc Scripts skse Sluttify\ Armor.esp
+7z a "$archive" Source/Scripts/*.psc Scripts skse Sluttify\ Armor.esp
 7z l "$archive"
 
 rm makelog
