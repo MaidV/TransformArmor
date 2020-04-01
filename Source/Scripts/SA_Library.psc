@@ -41,7 +41,7 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
             Debug.trace("[SA] Enchanted armor: " + slutClothes.GetName())
         EndIf
     Else
-        Debug.MessageBox("Failed to sluttify " + pureClothes.GetName() + ".")
+        Debug.Notification("Failed to sluttify " + pureClothes.GetName() + ".")
         return
     EndIf
 
