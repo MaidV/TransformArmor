@@ -12,8 +12,10 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
     Form slutClothes = JFormDB.getForm(pureClothes, ".SA_ArmorMap.slutForm")
 
     ; Name will be empty on invalid forms
-    If slutClothes.GetName() == "" && voluntary
-        Debug.Notification("Unable to find slut variant of " + pureClothes.GetName() + ".")
+    If slutClothes.GetName() == ""
+        If voluntary
+            Debug.Notification("Unable to find slut variant of " + pureClothes.GetName() + ".")
+        EndIf
         return
     EndIf
 
@@ -24,9 +26,9 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
         Float sourceMaxCharge = WornObject.GetItemMaxCharge(Target, 0, slotMask)
 
         Debug.trace("[SA] Found slut armor: " + slutClothes.GetName())
-        Target.RemoveItem(pureClothes)
+        Target.RemoveItem(pureClothes, 1, true)
         Debug.trace("[SA] Removed item: " + pureClothes.GetName())
-        Target.EquipItem(slutClothes)
+        Target.EquipItem(slutClothes, false, true)
         Debug.trace("[SA] Equipped armor: " + slutClothes.GetName())
 
         ; Crashes randomly if you don't wait a bit to temper the armor. Probably conflicting with mods that

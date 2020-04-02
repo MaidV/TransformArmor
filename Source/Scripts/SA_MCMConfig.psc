@@ -1,6 +1,6 @@
 Scriptname SA_MCMConfig extends SKI_ConfigBase
 
-int version = 000006
+int version = 000007
 
 string[] pureList
 string[] slutList
