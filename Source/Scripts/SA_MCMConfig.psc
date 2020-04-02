@@ -45,13 +45,16 @@ Function RefreshMapList()
     pureList = new string[128]
     slutList = new string[128]
 
+    JDB.solveObjSetter(".SA_ArmorMap", 0)
     JDB.solveObjSetter(".SA_ArmorMap", JValue.readFromFile(armorJson), true)
 
     int map = JDB.solveObj(".SA_ArmorMap")
     Form pureForm = JFormMap.nextKey(map)
     int i = 0
     While pureForm != None
-        Form slutForm = JFormDB.getForm(pureForm, ".SA_ArmorMap.slutForm")
+        int slutFormList = JFormDB.solveObj(pureForm, ".SA_ArmorMap.slutForm")
+        Form slutForm = JArray.getForm(slutFormList, 0)        
+        slutFormList = JValue.zeroLifetime(slutFormList)
 
         If i < 128
             pureList[i] = pureForm.GetName()
