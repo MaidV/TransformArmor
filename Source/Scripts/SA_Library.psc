@@ -12,7 +12,7 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
     Form slutClothes = JFormDB.getForm(pureClothes, ".SA_ArmorMap.slutForm")
 
     ; Name will be empty on invalid forms
-    If slutClothes.GetName() == ""
+    If slutClothes.GetName() == "" && voluntary
         Debug.Notification("Unable to find slut variant of " + pureClothes.GetName() + ".")
         return
     EndIf
@@ -41,7 +41,9 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
             Debug.trace("[SA] Enchanted armor: " + slutClothes.GetName())
         EndIf
     Else
-        Debug.Notification("Failed to sluttify " + pureClothes.GetName() + ".")
+        If voluntary
+            Debug.Notification("Failed to sluttify " + pureClothes.GetName() + ".")
+        EndIf
         return
     EndIf
 
