@@ -416,8 +416,100 @@
   "__formData|Dragonborn.esm|0x3ab26": {
     "slutForm": [ "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xb0f" ]
   },
-  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xd72": {
-    "slutForm": [ "__formData|TheAmazingWorldOfBikiniArmor.esp|0x16528",
-                  "__formData|TheAmazingWorldOfBikiniArmor.esp|0x16532" ]
-  }
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xbe0": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x2e36",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x33a8"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xc80": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x11d65",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x117f7"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xb40": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x5fd1",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x5fc9"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xb29": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x12dee",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x12de2"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xb3b": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x14987",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x13e97"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xc91": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x14987",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x13e97"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xbdd": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x96be"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xf0a": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x6ae8",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x6ae3"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xd03": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x6af2",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x6aed"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xd07": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x6af2",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x6aed"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xce5": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x16532",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x16528"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xb0f": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x16532",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x16528"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xbde": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x96be"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xb02": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x2e36",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x33a8"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xbff": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x1da5",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x12c5"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xbdb": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x96be"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xd83": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x12db",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x8bf3"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xb10": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x96be"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xbda": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x96be"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xf94": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x96be"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xb2e": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x3f06",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x3ef6"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xd44": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x3f06",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x3ef6"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0x901": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x1da5",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x12c5"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xbdc": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x96be"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xbdf": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x96be"
+  ],
+  "__formData|BD Armor and Clothing Replacer (STANDALONE).esp|0xf9d": [
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x8be9",
+    "__formData|TheAmazingWorldOfBikiniArmor.esp|0x80d3"
+  ]  
 }

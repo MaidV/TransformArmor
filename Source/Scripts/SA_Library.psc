@@ -10,9 +10,8 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
     EndIf
 
     int slutFormList = JFormDB.solveObj(pureForm, ".SA_ArmorMap.slutForm")
-    slutForm = JArray.getForm(slutFormList, 0)
 
-    If slutForm == None
+    If slutFormList == 0
         If voluntary
             Debug.Notification("Unable to find slut variant of " + pureForm.GetName() + ".")
         EndIf
@@ -24,11 +23,18 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
     Enchantment sourceEnchant = WornObject.GetEnchantment(Target, 0, slotMask)
     Float sourceMaxCharge = WornObject.GetItemMaxCharge(Target, 0, slotMask)
 
-    Debug.trace("[SA] Found slut armor: " + slutForm.GetName())
+    Debug.trace("[SA] Found slut armor")
     Target.RemoveItem(pureForm, 1, true)
     Debug.trace("[SA] Removed item: " + pureForm.GetName())
-    Target.EquipItem(slutForm, false, true)
-    Debug.trace("[SA] Equipped armor: " + slutForm.GetName())
+
+    Int count = JArray.count(slutFormList)
+    Form slutForm
+    While count > 0
+        count -= 1
+        slutForm = JArray.getForm(slutFormList, count)
+        Target.EquipItem(slutForm, false, true)
+        Debug.trace("[SA] Equipped armor: " + slutForm.GetName())
+    EndWhile
 
     ; Crashes randomly if you don't wait a bit to temper the armor. Probably conflicting with mods that
     ; modify incoming armor (MWA, specifically)
