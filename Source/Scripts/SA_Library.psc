@@ -47,6 +47,7 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
         WornObject.SetEnchantment(Target, 0, slotMask, sourceEnchant, sourceMaxCharge)
         Debug.trace("[SA] Enchanted armor: " + slutForm.GetName())
     EndIf
+    Target.QueueNiNodeUpdate()
 
     Debug.MessageBox("Sluttified " + pureForm.GetName() + ". All that excess material was too constricting anyway.")
 EndFunction
