@@ -9,7 +9,8 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
         return
     EndIf
 
-    int slutFormList = JFormDB.solveObj(pureForm, ".SA_ArmorMap.slutForm")
+    ; FIXME: This can't be the best way to dereference the nested maps
+    int slutFormList = JMap.getObj(JFormMap.getObj(JDB.solveObj(".SA.ArmorMap"), pureForm), "slutForm")
 
     If slutFormList == 0
         If voluntary
