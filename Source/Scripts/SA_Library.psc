@@ -30,19 +30,12 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
     Debug.trace("[SA] Removed item: " + pureForm.GetName())
 
     Debug.Trace("[SA] Reading in outfit for " + pureForm.GetName())
-    while outfitSlot != 0
-        int slotList = JIntMap.getObj(outfitGroup, outfitSlot)
-        Debug.Trace("[SA] Found item(s) in slot " + (outfitSlot as string) + ".")
-
-        int j = JArray.count(slotList)
-        while j > 0
-            j -= 1
-            Armor slutArmor = JArray.getForm(slotList, j) as Armor
-            Target.EquipItem(slutArmor, false, true)
-            Debug.trace("[SA] Equipped armor: " + slutArmor.GetName())
-        endwhile
-
-        outfitSlot = JIntMap.nextKey(outfitGroup, outfitSlot)
+    Form[] newOutfit = SA_Outfit.constructRandomOutfit(outfitGroup)
+    int i = 0
+    while i < newOutfit.Length
+        Target.EquipItem(newOutfit[i], false, true)
+        Debug.trace("[SA] Equipped armor: " + newOutfit[i].GetName())
+        i += 1
     endwhile
 
     ; ; Crashes randomly if you don't wait a bit to temper the armor. Probably conflicting with mods that

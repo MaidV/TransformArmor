@@ -15,7 +15,7 @@ Function addToSlot(int outfitGroup, int slot, Form inputForm) global
 EndFunction
 
 Form[] Function constructRandomOutfit(int outfitGroup) global
-    int nForms = JMap.count(outfitGroup)
+    int nForms = JIntMap.count(outfitGroup)
     Form[] newOutfit = Utility.CreateFormArray(nForms)
 
     int slot = JIntMap.nextKey(outfitGroup, -1, -1)
@@ -23,8 +23,11 @@ Form[] Function constructRandomOutfit(int outfitGroup) global
     while slot != -1
         int slotList = getSlot(outfitGroup, slot)
         int slotListLen = JArray.count(slotList)
+        debug.trace("[SA] Found " + (slotListLen as string) + " items in slot " + (slot as string) + ".")
         if slotListLen
-            int itemIdx = Utility.randomInt(0, JArray.count(slotList))
+            int itemIdx = Utility.randomInt(0, slotListLen - 1)
+            Form article = JArray.getForm(slotList, itemIdx)
+            debug.trace("[SA] Adding " + article.getName() + " to outfit from itemIdx " + (itemIdx as string) + ".")
             newOutfit[formIdx] = JArray.getForm(slotList, itemIdx)
             formIdx += 1
         endif
