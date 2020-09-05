@@ -9,10 +9,11 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
         return
     EndIf
 
-    ; FIXME: This can't be the best way to dereference the nested maps
-    int slutFormList = JMap.getObj(JFormMap.getObj(JDB.solveObj(".SA.ArmorMap"), pureForm), "slutForm")
+    int armorMap = JDB.solveObj(".SA.ArmorMap")
+    int outfitGroup = JFormMap.getObj(armorMap, pureForm)
+    int outfitSlot = JIntMap.nextKey(outfitGroup)
 
-    If slutFormList == 0
+    If outfitSlot == 0
         If voluntary
             Debug.Notification("Unable to find slut variant of " + pureForm.GetName() + ".")
         EndIf
@@ -28,27 +29,34 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
     Target.RemoveItem(pureForm, 1, true)
     Debug.trace("[SA] Removed item: " + pureForm.GetName())
 
-    Int count = JArray.count(slutFormList)
-    Form slutForm
-    While count > 0
-        count -= 1
-        slutForm = JArray.getForm(slutFormList, count)
-        Target.EquipItem(slutForm, false, true)
-        Debug.trace("[SA] Equipped armor: " + slutForm.GetName())
-    EndWhile
+    Debug.Trace("[SA] Reading in outfit for " + pureForm.GetName())
+    while outfitSlot != 0
+        int slotList = JIntMap.getObj(outfitGroup, outfitSlot)
+        Debug.Trace("[SA] Found item(s) in slot " + (outfitSlot as string) + ".")
 
-    ; Crashes randomly if you don't wait a bit to temper the armor. Probably conflicting with mods that
-    ; modify incoming armor (MWA, specifically)
-    Utility.Wait(0.5)
-    If health != 1.0
-        WornObject.SetItemHealthPercent(Target, 0, slotMask, health)
-        Debug.trace("[SA] Tempered armor: " + slutForm.GetName() + " to " + (health as string))
-    EndIf
-    If sourceEnchant != None
-        WornObject.SetEnchantment(Target, 0, slotMask, sourceEnchant, sourceMaxCharge)
-        Debug.trace("[SA] Enchanted armor: " + slutForm.GetName())
-    EndIf
+        int j = JArray.count(slotList)
+        while j > 0
+            j -= 1
+            Armor slutArmor = JArray.getForm(slotList, j) as Armor
+            Target.EquipItem(slutArmor, false, true)
+            Debug.trace("[SA] Equipped armor: " + slutArmor.GetName())
+        endwhile
+
+        outfitSlot = JIntMap.nextKey(outfitGroup, outfitSlot)
+    endwhile
+
+    ; ; Crashes randomly if you don't wait a bit to temper the armor. Probably conflicting with mods that
+    ; ; modify incoming armor (MWA, specifically)
+    ; Utility.Wait(0.5)
+    ; If health != 1.0
+    ;     WornObject.SetItemHealthPercent(Target, 0, slotMask, health)
+    ;     Debug.trace("[SA] Tempered armor: " + slutForm.GetName() + " to " + (health as string))
+    ; EndIf
+    ; If sourceEnchant != None
+    ;     WornObject.SetEnchantment(Target, 0, slotMask, sourceEnchant, sourceMaxCharge)
+    ;     Debug.trace("[SA] Enchanted armor: " + slutForm.GetName())
+    ; EndIf
     Target.QueueNiNodeUpdate()
 
-    Debug.MessageBox("Sluttified " + pureForm.GetName() + ". All that excess material was too constricting anyway.")
+    Debug.Notification(pureForm.GetName() + " has been Sluttified!")
 EndFunction

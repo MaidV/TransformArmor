@@ -3,7 +3,6 @@ Scriptname SA_MCMConfig extends SKI_ConfigBase
 int version = 000008
 
 string[] pureList
-string[] slutList
 string[] numList
 
 int spellEnabledOID
@@ -13,7 +12,6 @@ int mapRefreshOID
 
 int menuIndexOID
 int pureMenuOID
-int slutMenuOID
 
 bool spellEnabled = true
 bool perkEnabled = false
@@ -47,17 +45,14 @@ EndFunction
 Function RefreshMapList()
     Debug.Trace("[SA] Refreshing armor list")
     string armorJson = "Data/skse/plugins/StorageUtilData/Sluttify Armor/ArmorMapJC.json"
-    slutList = new string[128]
-
-    JDB.solveObjSetter(".SA.ArmorMap", 0)
     JDB.solveObjSetter(".SA.ArmorMap", JValue.readFromFile(armorJson), true)
+    int armorMap = JDB.solveObj(".SA.ArmorMap")
 
-    int map = JDB.solveObj(".SA.ArmorMap")
-    ; FIXME: for the love of god (don't init here, at least)
-    int nArmors = JFormMap.count(map)
+    int nArmors = JFormMap.count(armorMap)
     Debug.Trace("[SA] Found " + nArmors + " source armors in map.")
-    numList = Utility.CreateStringArray((nArmors - 1) / 128 + 1)
 
+    ; FIXME: for the love of god is this really necessary
+    numList = Utility.CreateStringArray((nArmors - 1) / 128 + 1)
     int i = 0
     while i < numList.Length
         numList[i] = i as string
@@ -65,24 +60,18 @@ Function RefreshMapList()
     endwhile
 
     int pureListFull = JArray.objectWithSize(nArmors)
-    Form pureForm = JFormMap.nextKey(map)
+    JValue.retain(pureListFull)
+    Form pureForm = JFormMap.nextKey(armorMap)
     i = 0
     While pureForm != None
-        ; FIXME: Need alternative set of lists, preferably by slot type
-        ; int slutFormList = JFormDB.solveObj(pureForm, ".SA_ArmorMap.slutForm")
-        ; Form slutForm = JArray.getForm(slutFormList, 0)
         JArray.setStr(pureListFull, i, pureForm.GetName())
-
-        ; If i < 128
-        ;     pureList[i] = pureForm.GetName()
-        ;     slutList[i] = slutForm.GetName()
-        ; EndIf
-
-
         i += 1
-        pureForm = JFormMap.nextKey(map, pureForm)
+        pureForm = JFormMap.nextKey(armorMap, pureForm)
     EndWhile
+
     JDB.solveObjSetter(".SA.pureListFull", pureListFull, true)
+    JValue.release(pureListFull)
+
     UpdatePureList()
 
     Debug.Trace("[SA] Refreshing armor list complete")
@@ -128,7 +117,8 @@ Event OnPageReset(string page)
 
     SetCursorFillMode(LEFT_TO_RIGHT)
     pureMenuOID = AddMenuOption("Pure clothes list", None)
-    slutMenuOID = AddMenuOption("Slutty clothes list", None)
+    ; FIXME: populate OIDs and map to slots
+    ; slutMenuOID = AddMenuOption("Slutty clothes list", None)
 EndEvent
 
 Event OnOptionSliderOpen(int option)
@@ -159,7 +149,8 @@ Event OnOptionSelect(int option)
     ElseIf (option == mapRefreshOID)
         RefreshMapList()
         SetMenuOptionValue(pureMenuOID, pureList[mapIndex])
-        SetMenuOptionValue(slutMenuOID, slutList[mapIndex])
+        ; FIXME: loop through outfitGroup OIDS and set value
+        ; SetMenuOptionValue(slutMenuOID, slutList[mapIndex])
     EndIf
 EndEvent
 
@@ -168,14 +159,16 @@ Event OnOptionMenuOpen(int option)
         SetMenuDialogOptions(pureList)
         SetMenuDialogStartIndex(mapIndex)
         SetMenuDialogDefaultIndex(0)
-    ElseIf (option == slutMenuOID)
-        SetMenuDialogOptions(slutList)
-        SetMenuDialogStartIndex(mapIndex)
-        SetMenuDialogDefaultIndex(0)
     ElseIf (option == menuIndexOID)
         SetMenuDialogOptions(numList)
         SetMenuDialogStartIndex(menuIndex)
         SetMenuDialogDefaultIndex(0)
+    Else
+        ; must be one of the dynamic menus
+        ; FIXME: Need to get OID to point to the right outfitGroup slot
+        ; SetMenuDialogOptions(slutList)
+        ; SetMenuDialogStartIndex(mapIndex)
+        ; SetMenuDialogDefaultIndex(0)
     EndIf
 EndEvent
 
@@ -198,14 +191,15 @@ Function UpdatePureList()
 EndFunction
 
 Event OnOptionMenuAccept(int option, int index)
-    if (option == pureMenuOID || option == slutMenuOID)
+    if (option == pureMenuOID)
         mapIndex = index
         SetMenuOptionValue(pureMenuOID, pureList[mapIndex])
-        SetMenuOptionValue(slutMenuOID, slutList[mapIndex])
+        ; FIXME: Set outfitgroup
     ElseIf (option == menuIndexOID)
         menuIndex = index
         SetMenuOptionValue(menuIndexOID, menuIndex)
         UpdatePureList()
         SetMenuOptionValue(pureMenuOID, pureList[mapIndex])
+        ; FIXME: Set outfitgroup
     endIf
 EndEvent
