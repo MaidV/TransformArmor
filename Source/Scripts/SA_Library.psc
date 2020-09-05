@@ -11,26 +11,24 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
 
     int armorMap = JDB.solveObj(".SA.ArmorMap")
     int outfitGroup = JFormMap.getObj(armorMap, pureForm)
-    int outfitSlot = JIntMap.nextKey(outfitGroup)
-
-    If outfitSlot == 0
-        If voluntary
-            Debug.Notification("Unable to find slut variant of " + pureForm.GetName() + ".")
-        EndIf
-        return
-    EndIf
 
     Int slotMask = 4
     Float health = WornObject.GetItemHealthPercent(Target, 0, slotMask)
     Enchantment sourceEnchant = WornObject.GetEnchantment(Target, 0, slotMask)
     Float sourceMaxCharge = WornObject.GetItemMaxCharge(Target, 0, slotMask)
 
+    Debug.Trace("[SA] Reading in outfit for " + pureForm.GetName())
+    Form[] newOutfit = SA_Outfit.constructRandomOutfit(outfitGroup)
+    if newOutfit == None
+        if voluntary
+            Debug.Notification("Unable to find slut variant of " + pureForm.GetName() + ".")
+        endif
+        return
+    endif
     Debug.trace("[SA] Found slut armor")
     Target.RemoveItem(pureForm, 1, true)
     Debug.trace("[SA] Removed item: " + pureForm.GetName())
 
-    Debug.Trace("[SA] Reading in outfit for " + pureForm.GetName())
-    Form[] newOutfit = SA_Outfit.constructRandomOutfit(outfitGroup)
     int i = 0
     while i < newOutfit.Length
         Target.EquipItem(newOutfit[i], false, true)

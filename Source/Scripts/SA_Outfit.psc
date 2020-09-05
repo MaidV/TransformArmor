@@ -34,5 +34,9 @@ Form[] Function constructRandomOutfit(int outfitGroup) global
         slot = JIntMap.nextKey(outfitGroup, slot, -1)
     endwhile
 
-    return newOutfit
+    if formIdx
+        return newOutfit
+    else
+        return None
+    endif
 EndFunction
