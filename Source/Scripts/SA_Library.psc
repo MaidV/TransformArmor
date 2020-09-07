@@ -19,7 +19,7 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
 
     Debug.Trace("[SA] Reading in outfit for " + pureForm.GetName())
     Form[] newOutfit = SA_Outfit.constructRandomOutfit(outfitGroup)
-    if newOutfit == None
+    if newOutfit.length == 0
         if voluntary
             Debug.Notification("Unable to find slut variant of " + pureForm.GetName() + ".")
         endif
@@ -47,6 +47,7 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
     ;     WornObject.SetEnchantment(Target, 0, slotMask, sourceEnchant, sourceMaxCharge)
     ;     Debug.trace("[SA] Enchanted armor: " + slutForm.GetName())
     ; EndIf
+    Utility.Wait(0.5)
     Target.QueueNiNodeUpdate()
 
     Debug.Notification(pureForm.GetName() + " has been Sluttified!")

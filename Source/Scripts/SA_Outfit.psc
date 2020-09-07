@@ -37,6 +37,6 @@ Form[] Function constructRandomOutfit(int outfitGroup) global
     if formIdx
         return newOutfit
     else
-        return None
+        return Utility.CreateFormArray(0)
     endif
 EndFunction
