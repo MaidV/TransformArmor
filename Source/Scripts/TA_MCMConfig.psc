@@ -1,4 +1,4 @@
-Scriptname SA_MCMConfig extends SKI_ConfigBase
+Scriptname TA_MCMConfig extends SKI_ConfigBase
 
 int version = 000010
 
@@ -21,8 +21,8 @@ float Property containerProbability Auto
 int mapIndex = 0
 int menuIndex = 0
 
-Spell Property SA_SluttifyArmorSpell Auto
-Perk Property SA_ActivateContainerPerk Auto
+Spell Property TA_TransformArmorSpell Auto
+Perk Property TA_ActivateContainerPerk Auto
 
 Function ToggleSpell(Spell tarSpell)
     Actor playerRef = Game.GetPlayer()
@@ -44,7 +44,7 @@ EndFunction
 
 Function RefreshMapList()
     Debug.Trace("[SA] Refreshing armor list")
-    string armorJson = "Data/skse/plugins/StorageUtilData/Sluttify Armor/ArmorMapJC.json"
+    string armorJson = "Data/skse/plugins/StorageUtilData/Transform Armor/ArmorMapJC.json"
     JDB.solveObjSetter(".SA.ArmorMap", JValue.readFromFile(armorJson), true)
     int armorMap = JDB.solveObj(".SA.ArmorMap")
 
@@ -90,12 +90,12 @@ string Function GetStrVersion()
 EndFunction
 
 Event OnConfigInit()
-    Debug.Notification("Sluttify Armor " + GetStrVersion() + " loading, do not open MCM.")
-    ModName = "Sluttify Armor"
+    Debug.Notification("Transform Armor " + GetStrVersion() + " loading, do not open MCM.")
+    ModName = "Transform Armor"
     RefreshMapList()
-    ToggleSpell(SA_SluttifyArmorSpell)
+    ToggleSpell(TA_TransformArmorSpell)
 
-    Debug.Notification("Sluttify Armor " + GetStrVersion() + " loaded.")
+    Debug.Notification("Transform Armor " + GetStrVersion() + " loaded.")
 EndEvent
 
 Event OnVersionUpdate(int vers)
@@ -108,7 +108,7 @@ Event OnPageReset(string page)
     SetCursorFillMode(TOP_TO_BOTTOM)
     SetCursorPosition(0)
 
-    spellEnabled = Game.GetPlayer().HasSpell(SA_SluttifyArmorSpell)
+    spellEnabled = Game.GetPlayer().HasSpell(TA_TransformArmorSpell)
     spellEnabledOID = AddToggleOption("Spell Enabled", spellEnabled)
     perkEnabledOID = AddToggleOption("Container chance enabled", perkEnabled)
     perkSliderOID = AddSliderOption("Probability?", containerProbability, "{1} percent")
@@ -141,11 +141,11 @@ Event OnOptionSelect(int option)
     If (option == spellEnabledOID)
         spellEnabled = !spellEnabled
         SetToggleOptionValue(spellEnabledOID, spellEnabled)
-        ToggleSpell(SA_SluttifyArmorSpell)
+        ToggleSpell(TA_TransformArmorSpell)
     ElseIf (option == perkEnabledOID)
         perkEnabled = !perkEnabled
         SetToggleOptionValue(perkEnabledOID, perkEnabled)
-        TogglePerk(SA_ActivateContainerPerk)
+        TogglePerk(TA_ActivateContainerPerk)
     ElseIf (option == mapRefreshOID)
         RefreshMapList()
         SetMenuOptionValue(pureMenuOID, pureList[mapIndex])

@@ -1,4 +1,4 @@
-Scriptname SA_outfit
+Scriptname TA_outfit
 
 int Function getSlot(int outfitGroup, int slot) global
     return JIntMap.getObj(outfitGroup, slot)

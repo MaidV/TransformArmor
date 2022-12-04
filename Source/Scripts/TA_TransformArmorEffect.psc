@@ -1,8 +1,8 @@
-Scriptname SA_SluttifyArmorEffect extends ActiveMagicEffect
+Scriptname TA_TransformArmorEffect extends ActiveMagicEffect
 {Converts armor to sluttified version}
 
 Event OnEffectStart(Actor Target, Actor Caster)
-    SA_Library.SluttifyEquipped(Target, Caster, true)
+    TA_Library.TransformEquipped(Target, Caster, true)
 
     ; string[] par = new string[2]
     ; https://www.reddit.com/r/skyrimmods/comments/4cgv9h/no_documentation_for_uie/

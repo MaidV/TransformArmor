@@ -1,8 +1,8 @@
-Scriptname SA_Library
+Scriptname TA_Library
 
 Form[] Function GetOutfit(Actor Target) Global Native
 
-Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) global
+Function TransformEquipped(Actor Target, Actor Caster, bool voluntary = true) global
     Form pureForm = Target.GetWornForm(4)
     If pureForm == None
         Form[] newOutfit = GetOutfit(Target)
@@ -29,7 +29,7 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
     Float sourceMaxCharge = WornObject.GetItemMaxCharge(Target, 0, slotMask)
 
     Debug.Trace("[SA] Reading in outfit for " + pureForm.GetName())
-    Form[] newOutfit = SA_Outfit.constructRandomOutfit(outfitGroup)
+    Form[] newOutfit = TA_Outfit.constructRandomOutfit(outfitGroup)
     if newOutfit.length == 0
         if voluntary
             Debug.Notification("Unable to find slut variant of " + pureForm.GetName() + ".")
