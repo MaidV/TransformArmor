@@ -1,8 +1,19 @@
 Scriptname SA_Library
 
+Form[] Function GetOutfit(Actor Target) Global Native
+
 Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) global
     Form pureForm = Target.GetWornForm(4)
     If pureForm == None
+        Form[] newOutfit = GetOutfit(Target)
+        Debug.Notification("New outfit is" + newOutfit.Length)
+        int i = 0
+        while i < newOutfit.Length
+            Target.EquipItem(newOutfit[i], false, true)
+            Debug.trace("[SA] Equipped armor: " + newOutfit[i].GetName())
+            i += 1
+        endwhile
+        Target.QueueNiNodeUpdate()
         If voluntary
             Debug.Notification("Can't sluttify armor if you're naked!")
         EndIf
@@ -36,18 +47,6 @@ Function SluttifyEquipped(Actor Target, Actor Caster, bool voluntary = true) glo
         i += 1
     endwhile
 
-    ; ; Crashes randomly if you don't wait a bit to temper the armor. Probably conflicting with mods that
-    ; ; modify incoming armor (MWA, specifically)
-    ; Utility.Wait(0.5)
-    ; If health != 1.0
-    ;     WornObject.SetItemHealthPercent(Target, 0, slotMask, health)
-    ;     Debug.trace("[SA] Tempered armor: " + slutForm.GetName() + " to " + (health as string))
-    ; EndIf
-    ; If sourceEnchant != None
-    ;     WornObject.SetEnchantment(Target, 0, slotMask, sourceEnchant, sourceMaxCharge)
-    ;     Debug.trace("[SA] Enchanted armor: " + slutForm.GetName())
-    ; EndIf
-    Utility.Wait(0.5)
     Target.QueueNiNodeUpdate()
 
     Debug.Notification(pureForm.GetName() + " has been Sluttified!")
