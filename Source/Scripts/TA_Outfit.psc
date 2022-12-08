@@ -23,11 +23,11 @@ Form[] Function constructRandomOutfit(int outfitGroup) global
     while slot != -1
         int slotList = getSlot(outfitGroup, slot)
         int slotListLen = JArray.count(slotList)
-        debug.trace("[SA] Found " + (slotListLen as string) + " items in slot " + (slot as string) + ".")
+        debug.trace("[TA] Found " + (slotListLen as string) + " items in slot " + (slot as string) + ".")
         if slotListLen
             int itemIdx = Utility.randomInt(0, slotListLen - 1)
             Form article = JArray.getForm(slotList, itemIdx)
-            debug.trace("[SA] Adding " + article.getName() + " to outfit from itemIdx " + (itemIdx as string) + ".")
+            debug.trace("[TA] Adding " + article.getName() + " to outfit from itemIdx " + (itemIdx as string) + ".")
             newOutfit[formIdx] = JArray.getForm(slotList, itemIdx)
             formIdx += 1
         endif

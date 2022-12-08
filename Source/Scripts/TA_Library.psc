@@ -10,12 +10,12 @@ Function TransformEquipped(Actor Target, Actor Caster, bool voluntary = true) gl
         int i = 0
         while i < newOutfit.Length
             Target.EquipItem(newOutfit[i], false, true)
-            Debug.trace("[SA] Equipped armor: " + newOutfit[i].GetName())
+            Debug.trace("[TA] Equipped armor: " + newOutfit[i].GetName())
             i += 1
         endwhile
         Target.QueueNiNodeUpdate()
         If voluntary
-            Debug.Notification("Can't sluttify armor if you're naked!")
+            Debug.Notification("Can't transform armor if you're naked!")
         EndIf
         return
     EndIf
@@ -28,26 +28,26 @@ Function TransformEquipped(Actor Target, Actor Caster, bool voluntary = true) gl
     Enchantment sourceEnchant = WornObject.GetEnchantment(Target, 0, slotMask)
     Float sourceMaxCharge = WornObject.GetItemMaxCharge(Target, 0, slotMask)
 
-    Debug.Trace("[SA] Reading in outfit for " + pureForm.GetName())
+    Debug.Trace("[TA] Reading in outfit for " + pureForm.GetName())
     Form[] newOutfit = TA_Outfit.constructRandomOutfit(outfitGroup)
     if newOutfit.length == 0
         if voluntary
-            Debug.Notification("Unable to find slut variant of " + pureForm.GetName() + ".")
+            Debug.Notification("Unable to find transformed variant of " + pureForm.GetName() + ".")
         endif
         return
     endif
-    Debug.trace("[SA] Found slut armor")
+    Debug.trace("[TA] Found armor target")
     Target.RemoveItem(pureForm, 1, true)
-    Debug.trace("[SA] Removed item: " + pureForm.GetName())
+    Debug.trace("[TA] Removed item: " + pureForm.GetName())
 
     int i = 0
     while i < newOutfit.Length
         Target.EquipItem(newOutfit[i], false, true)
-        Debug.trace("[SA] Equipped armor: " + newOutfit[i].GetName())
+        Debug.trace("[TA] Equipped armor: " + newOutfit[i].GetName())
         i += 1
     endwhile
 
     Target.QueueNiNodeUpdate()
 
-    Debug.Notification(pureForm.GetName() + " has been Sluttified!")
+    Debug.Notification(pureForm.GetName() + " has been Transformed!")
 EndFunction
