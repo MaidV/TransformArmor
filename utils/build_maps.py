@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import json
 import re
 import sys
@@ -99,3 +101,6 @@ for key in armors.keys():
 
     for form,name in src_armors.items():
         transforms[form] = {'32': list(trg_tops.keys()), '52': list(trg_bottoms.keys())}
+
+with open('transforms.json', 'w', encoding ='utf8') as json_file:
+    json.dump(transforms, json_file)

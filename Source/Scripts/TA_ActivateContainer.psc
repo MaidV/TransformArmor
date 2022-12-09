@@ -7,7 +7,7 @@ Function Fragment_5(ObjectReference akTargetRef, Actor akActor)
 ;BEGIN CODE
     debug.trace("[SA] Activate container")
     float r = Utility.RandomFloat(0, 100)
-    If r < TA_MCM.containerProbability || true
+    If r < TA_MCM.containerProbability
         TA_Library.TransformEquipped(akActor, None, false)
     EndIf
 ;END CODE
