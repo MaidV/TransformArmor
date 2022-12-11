@@ -12,15 +12,18 @@ def filter_armors(armor, prefix, slots):
     return prefix.lower() in armor['name'].lower() and \
         set(slots).intersection(set(armor['slots']))
 
-def get_armors(db, prefixes):
+def get_armors(db, prefixes, excludes=None):
+    if not excludes:
+        excludes = []
     if isinstance(prefixes, str):
         prefixes = [prefixes]
     
     armors = {}
-    for mod in ['Skyrim.esm', 'Dawnguard.esm', 'Dragonborn.esm', 'Update.esm']:
+    for mod in ['Skyrim.esm', 'Dawnguard.esm', 'Dragonborn.esm', 'Update.esm', 'Unofficial Skyrim Special Edition Patch.esp']:
         for prefix in prefixes:
             for armor in filter(lambda armor: filter_armors(armor, prefix, [32, 52]), db[mod].values()):
-                armors[mod + '|' + armor['formID']] = armor['name']
+                if armor['name'] not in excludes:
+                    armors[mod + '|' + armor['formID']] = armor['name']
     return armors
 
 def get_bikini_gen(db, prefixes, slot):
@@ -43,21 +46,23 @@ def get_bikini_bottom(db, prefix):
 
 tops, armors, bottoms = {}, {}, {}
 
-armors['hide'] = get_armors(allarmor, 'Hide')
+armors['hide'] = get_armors(allarmor, ['Hide', 'Fur Armor'])
 tops['hide'] = get_bikini_top(allarmor, 'Hide')
 bottoms['hide'] = get_bikini_bottom(allarmor, 'Hide')
 
 
 armors['leather'] = get_armors(allarmor, ['Leather',
-                                       'Imperial Light',
-                                       "Riften Guard's Armor",
-                                       "Markarth Guard's Armor",
-                                       "Whiterun Guard's Armor",
-                                       "Falkreath Guard's Armor",
-                                       "Hjaalmarch Guard's Armor",
-                                       "Winterhold Guard's Armor",
-                                       "Stormcloak Cuirass",
-                                       "scaled"])
+                                          'Imperial Light',
+                                          "Riften Guard's Armor",
+                                          "Markarth Guard's Armor",
+                                          "Whiterun Guard's Armor",
+                                          "Falkreath Guard's Armor",
+                                          "Hjaalmarch Guard's Armor",
+                                          "Winterhold Guard's Armor",
+                                          "Stormcloak Cuirass",
+                                          "Studded Armor",
+                                          "Studded Imperial Armor",
+                                          "Scaled"])
 tops['leather'] = get_bikini_top(allarmor, 'Leather')
 bottoms['leather'] = get_bikini_bottom(allarmor, 'Leather')
 
@@ -65,7 +70,7 @@ armors['iron'] = get_armors(allarmor, ['Iron', 'Banded Iron'])
 tops['iron'] = get_bikini_top(allarmor, 'Iron')
 bottoms['iron'] = get_bikini_bottom(allarmor, 'Iron')
 
-armors['steel'] = get_armors(allarmor, ['Steel Armor', 'Imperial Armor'])
+armors['steel'] = get_armors(allarmor, ['Steel Armor', 'Imperial Armor'], excludes=["Studded Imperial Armor"])
 tops['steel'] = get_bikini_top(allarmor, 'Steel Bikini')
 bottoms['steel'] = get_bikini_bottom(allarmor, 'Steel')
 
@@ -100,7 +105,9 @@ for key in armors.keys():
     trg_bottoms = bottoms[key]
 
     for form,name in src_armors.items():
+        print(form, name)
         transforms[form] = {'32': list(trg_tops.keys()), '52': list(trg_bottoms.keys())}
+        
 
 with open('transforms.json', 'w', encoding ='utf8') as json_file:
-    json.dump(transforms, json_file)
+    json.dump(transforms, json_file, indent=4)
