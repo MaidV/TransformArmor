@@ -5,6 +5,7 @@ int version = 000010
 int spellEnabledOID
 int perkEnabledOID
 int perkSliderOID
+int armorDumpOID
 
 bool spellEnabled = true
 bool perkEnabled = false
@@ -64,6 +65,7 @@ Event OnPageReset(string page)
     spellEnabledOID = AddToggleOption("Spell Enabled", spellEnabled)
     perkEnabledOID = AddToggleOption("Container chance enabled", perkEnabled)
     perkSliderOID = AddSliderOption("Probability?", containerProbability, "{1} percent")
+    armorDumpOID = AddTextOption("Dump all armor data to json", None)
     SetCursorFillMode(LEFT_TO_RIGHT)
 EndEvent
 
@@ -92,5 +94,7 @@ Event OnOptionSelect(int option)
         perkEnabled = !perkEnabled
         SetToggleOptionValue(perkEnabledOID, perkEnabled)
         TogglePerk(TA_ActivateContainerPerk)
+    ElseIf (option == armorDumpOID)
+        OutfitServer.DumpArmors()
     EndIf
 EndEvent
