@@ -4,7 +4,7 @@
 
 
 #include "json.hpp"
-#include "outfit.hpp"
+#include "transform_utils.hpp"
 #include "utils.hpp"
 
 
@@ -220,7 +220,7 @@ namespace TransformUtils
 		if (transform_map.count(key) && transform_map.at(key).size()) {
 			const auto& outfits = transform_map.at(key);
 			outfit.articles = (outfits[rand() % outfits.size()]);
-			TryOutfit(actor, outfit, false);
+			outfit.Equip(actor, false, true);
 			return true;
 		}
 		return false;
@@ -244,7 +244,7 @@ namespace TransformUtils
 
 	std::unordered_map<string, Outfit> outfit_map;
 
-	void TryOutfit(Actor* actor, const Outfit& outfit, bool unequip)
+	void Outfit::Equip(Actor* actor, bool unequip, bool add_to_inventory) const
 	{
 		ActorEquipManager* equip_manager = ActorEquipManager::GetSingleton();
 
@@ -252,11 +252,13 @@ namespace TransformUtils
 			run_scripts(actor, { "unequipall" });
 
 		std::vector<TESForm*> to_equip;
-		to_equip.reserve(outfit.articles.size());
-		for (const Article& article : outfit.articles) {
+		to_equip.reserve(articles.size());
+		for (const Article& article : articles) {
 			to_equip.push_back(article.form);
 		}
-		AddItem(actor, to_equip, 1);
+
+		if (add_to_inventory)
+			AddItem(actor, to_equip, 1);
 
 		for (auto& armor : to_equip)
 			equip_manager->EquipObject(actor, static_cast<TESObjectARMO*>(armor), nullptr, 1);

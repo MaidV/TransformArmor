@@ -120,13 +120,13 @@ find_package(spdlog REQUIRED)
 
 set(headers
 	src/json.hpp
-	src/outfit.hpp
+	src/transform_utils.hpp
 	src/utils.hpp
 )
 
 set(sources
 	src/main.cpp
-	src/outfit.cpp
+	src/transform_utils.cpp
 	src/utils.cpp
 )
 

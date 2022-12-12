@@ -30,8 +30,8 @@ namespace TransformUtils
 	struct Outfit
 	{
 		std::vector<Article> articles;
+		void Equip(RE::Actor* actor, bool unequip = true, bool add_to_inventory = true) const;
 	};
-	void TryOutfit(RE::Actor* actor, const Outfit& outfit, bool unequip = true);
 
 	bool TransformArmor(RE::Actor* actor, RE::TESObjectARMO* armor);
 }
