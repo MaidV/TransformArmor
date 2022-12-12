@@ -1,6 +1,6 @@
 Scriptname TA_MCMConfig extends SKI_ConfigBase
 
-int version = 000010
+int version = 000100
 
 int spellEnabledOID
 int perkEnabledOID

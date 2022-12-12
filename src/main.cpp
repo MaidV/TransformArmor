@@ -6,8 +6,8 @@ namespace Plugin
 
 	inline constexpr REL::Version VERSION{
 		0,
-		0,
 		1,
+		0,
 	};
 
 	inline constexpr auto NAME = "TransformUtils";
