@@ -23,14 +23,12 @@ struct Outfit {
 typedef std::unordered_map<std::string, std::unordered_map<std::string, Article>> armor_record_t;
 typedef std::vector<std::vector<Article>> transform_target_t;
 
-void from_json(const nlohmann::json &j, Article &a);
-void to_json(nlohmann::json &j, const Article &a);
-
 void LoadArmors();
 void LoadTransforms();
 void DumpArmors();
 armor_record_t &GetLoadedArmors();
-
 bool TransformArmor(RE::Actor *actor, RE::TESObjectARMO *armor);
+
+void to_json(nlohmann::json &j, const Article &a);
 void from_json(const nlohmann::json &j, transform_target_t &a);
 } // namespace TransformUtils

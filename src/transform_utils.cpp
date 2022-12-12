@@ -15,7 +15,6 @@ using namespace RE;
 namespace TransformUtils {
 armor_record_t armor_map;
 unordered_map<string, transform_target_t> transform_map;
-unordered_map<string, Outfit> outfit_map;
 
 Article::Article(TESObjectARMO *armor)
     : name(armor->GetFullName()), formID(mask_form<int32_t, 6>(armor)),
@@ -120,13 +119,6 @@ void AddItem(Actor *actor, std::vector<TESForm *> &forms, int32_t count = 1, boo
     run_scripts(actor, commands);
 }
 
-void from_json(const json &j, Article &a) {
-    string mod = j.at("mod");
-    string formID = j.at("formID");
-    logger::info("Article: {} {}", mod, formID);
-    a = Article(armor_map[mod][formID]);
-}
-
 void to_json(json &j, const Article &a) {
     std::vector<uint8_t> slots;
     for (int32_t i = 0; i < 32; ++i) {
@@ -145,7 +137,7 @@ void LoadTransforms() {
         const auto filename = entry.path().string();
         if (!filename.ends_with(".json"))
             continue;
-        spdlog::info("Parsing transform file: " + filename);
+        spdlog::info("Parsing transform file: {}", filename);
         try {
             std::ifstream ifs(filename);
             auto parsed = json::parse(ifs);
@@ -158,7 +150,7 @@ void LoadTransforms() {
                 transform_map[source.key()] = tmp;
             }
         } catch (...) {
-            spdlog::warn("Unable to parse " + filename);
+            spdlog::warn("Unable to parse {}", filename);
         }
     }
     spdlog::info("Loaded transforms");
@@ -168,7 +160,7 @@ void LoadTransforms() {
         for (auto &trglist : trgs) {
             string outfit;
             for (auto &trg : trglist)
-                outfit += trg.name + " ";
+                outfit += trg.name + ", ";
             spdlog::info("    {}", outfit);
         }
     }
@@ -182,14 +174,14 @@ bool TransformArmor(Actor *actor, TESObjectARMO *armor) {
     string form = mask_form<string, 6>(armor);
     string key = file + "|" + form;
 
-    if (!transform_map.count(key)) {
-        spdlog::warn("(" + file + ", " + form + ") not in Transform map");
+    if (!transform_map.contains(key)) {
+        spdlog::warn("({}, {}) not in Transform map", file, form);
         return false;
     }
 
     vector<Article> to_equip;
     Outfit outfit;
-    if (transform_map.count(key) && transform_map.at(key).size()) {
+    if (transform_map.contains(key) && transform_map.at(key).size()) {
         const auto &outfits = transform_map.at(key);
         outfit.articles = (outfits[rand() % outfits.size()]);
         outfit.Equip(actor, false, true);
@@ -206,7 +198,7 @@ void from_json(const json &j, transform_target_t &a) {
 
         for (const auto &formpair : tmp) {
             auto [mod, formID] = split_string(formpair);
-            if (armor_map.count(mod) && armor_map.at(mod).count(formID))
+            if (armor_map.contains(mod) && armor_map.at(mod).contains(formID))
                 outfit.push_back(armor_map.at(mod).at(formID));
         }
         a.push_back(outfit);
