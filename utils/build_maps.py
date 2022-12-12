@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import itertools
 
 with open('AllArmors_dump.json') as f:
     allarmor = json.load(f)
@@ -106,13 +107,10 @@ for key in armors.keys():
     trg_bottoms = bottoms[key]
 
     for form,name in src_armors.items():
-        transforms[form] = {'32': list(trg_tops.keys()), '52': list(trg_bottoms.keys())}
+         transforms[form] = list(itertools.product(trg_tops.keys(), trg_bottoms.keys()))
 
 with open('Vanilla-Bikini.json', 'w', encoding ='utf8') as json_file:
     json.dump(transforms, json_file, indent=2)
-
-with open('AllArmors_dump.json') as f:
-    allarmor = json.load(f)
 
 G3Barmors = {}
 mod = 'Ghaan Revealing Outfit Craftable.esp'
@@ -123,12 +121,10 @@ g3btransforms = {}
 for key, val in G3Barmors.items():
     basename = val['name'].split(maxsplit=1)[1]
     for src_armor in get_armors(allarmor, [basename], prefix=True):
-        g3btransforms[src_armor] = {"32": [key,]}
+        g3btransforms[src_armor] = [[key,]]
 
 with open('Vanilla-G3B.json', 'w', encoding ='utf8') as json_file:
     json.dump(g3btransforms, json_file, indent=2)
-
-
 
 BDarmors = {}
 mod = 'BD Standalone.esp'
@@ -139,7 +135,7 @@ BDtransforms = {}
 for key, val in BDarmors.items():
     basename = val['name'].split(' - ')[0]
     for src_armor in get_armors(allarmor, [basename], prefix=True):
-        BDtransforms[src_armor] = {"32": [key,]}
+        BDtransforms[src_armor] = [[key,]]
 
 with open('Vanilla-BD.json', 'w', encoding ='utf8') as json_file:
     json.dump(BDtransforms, json_file, indent=2)
@@ -148,13 +144,13 @@ with open('Vanilla-BD.json', 'w', encoding ='utf8') as json_file:
 merged = {}
 for baseform,bikinis in transforms.items():
     if baseform in BDtransforms.keys():
-        bd_form = BDtransforms[baseform]["32"][0]
+        bd_form = BDtransforms[baseform][0][0]
         merged[baseform] = BDtransforms[baseform]
         merged[bd_form] = bikinis
     if baseform in g3btransforms.keys():
-        g3b_form = g3btransforms[baseform]["32"][0]
+        g3b_form = g3btransforms[baseform][0][0]
         if baseform in merged:
-            merged[baseform]["32"].append(g3b_form)
+            merged[baseform].append([g3b_form])
         else:
             merged[baseform] = g3btransforms[baseform]
         merged[g3b_form] = bikinis
