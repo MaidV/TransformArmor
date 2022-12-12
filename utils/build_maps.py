@@ -3,7 +3,7 @@
 import json
 import itertools
 
-with open('AllArmors_dump.json') as f:
+with open('TransformUtils_Armors_Dump.json') as f:
     allarmor = json.load(f)
 
 def filter_armors(armor, search, slots, prefix=False):
@@ -159,5 +159,5 @@ for baseform,bikinis in transforms.items():
         merged[baseform] = bikinis
 
 
-with open('Vanilla-G3B|BD-Bikini.json', 'w', encoding ='utf8') as json_file:
+with open('Vanilla-G3B_BD-Bikini.json', 'w', encoding ='utf8') as json_file:
     json.dump(merged, json_file, indent=2)
