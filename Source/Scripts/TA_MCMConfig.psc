@@ -95,6 +95,6 @@ Event OnOptionSelect(int option)
         SetToggleOptionValue(perkEnabledOID, perkEnabled)
         TogglePerk(TA_ActivateContainerPerk)
     ElseIf (option == armorDumpOID)
-        OutfitServer.DumpArmors()
+        TransformUtils.DumpArmors()
     EndIf
 EndEvent

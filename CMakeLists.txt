@@ -7,7 +7,7 @@ set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
 # ---- Project ----
 
 project(
-	OutfitServer
+	TransformUtils
 	VERSION 0.0.1
 	LANGUAGES CXX
 )
@@ -119,17 +119,16 @@ find_package(spdlog REQUIRED)
 # ---- Add source files ----
 
 set(headers
-	src/mongoose.h
+	src/json.hpp
+	src/outfit.hpp
+	src/utils.hpp
 )
 
 set(sources
 	src/main.cpp
-	src/mongoose.cpp
 	src/outfit.cpp
-	src/outfit_server.cpp
 	src/utils.cpp
 )
-set_source_files_properties(src/mongoose.cpp PROPERTIES COMPILE_FLAGS "/wd4996 /wd4244 /wd4267 /wd4312")
 
 source_group(
 	TREE ${CMAKE_CURRENT_SOURCE_DIR}
