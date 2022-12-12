@@ -27,10 +27,10 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 
 static inline bool TransformArmor(RE::StaticFunctionTag*, RE::Actor* actor, RE::TESForm* armor)
 {
-	return TransformNS::TransformArmor(actor, static_cast<RE::TESObjectARMO*>(armor));
+	return TransformUtils::TransformArmor(actor, static_cast<RE::TESObjectARMO*>(armor));
 }
 
-static inline void DumpArmors(RE::StaticFunctionTag*) { ArticleNS::DumpArmors(); };
+static inline void DumpArmors(RE::StaticFunctionTag*) { TransformUtils::DumpArmors(); };
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {

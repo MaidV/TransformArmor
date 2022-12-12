@@ -5,7 +5,7 @@
 #include <vector>
 
 
-namespace ArticleNS
+namespace TransformUtils
 {
 	struct Article
 	{
@@ -26,18 +26,12 @@ namespace ArticleNS
 	void LoadTransforms();
 	void DumpArmors();
 	armor_record_t& GetLoadedArmors();
-}
 
-namespace OutfitNS
-{
 	struct Outfit
 	{
-		std::vector<ArticleNS::Article> articles;
+		std::vector<Article> articles;
 	};
 	void TryOutfit(RE::Actor* actor, const Outfit& outfit, bool unequip = true);
-}
 
-namespace TransformNS
-{
 	bool TransformArmor(RE::Actor* actor, RE::TESObjectARMO* armor);
 }

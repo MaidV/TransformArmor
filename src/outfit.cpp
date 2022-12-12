@@ -14,7 +14,7 @@ using std::unordered_map;
 using std::vector;
 using namespace RE;
 
-namespace ArticleNS
+namespace TransformUtils
 {
 	Article::Article(TESObjectARMO* armor) :
 		name(armor->GetFullName()),
@@ -99,7 +99,7 @@ namespace ArticleNS
 			}
 			logger::debug("Adding new armor to map: {}", armor->GetFullName());
 
-			ArticleNS::Article article(armor);
+			Article article(armor);
 			logger::debug("Created new Article: {}", json(article).dump(-1, ' ', false, json::error_handler_t::ignore));
 			armor_map[armor->GetFile()->fileName][mask_form<string, 6>(article.form)] = article;
 		}
@@ -120,7 +120,7 @@ namespace ArticleNS
 
 	armor_record_t& GetLoadedArmors()
 	{
-		return ArticleNS::armor_map;
+		return armor_map;
 	};
 
 	void AddItem(Actor* actor, std::vector<TESForm*>& forms, int32_t count = 1, bool silent = false)
@@ -155,11 +155,8 @@ namespace ArticleNS
 			{ "slots", slots }
 		};
 	}
-}
 
-namespace TransformNS
-{
-	typedef vector<vector<ArticleNS::Article>> transform_target_t;
+	typedef vector<vector<Article>> transform_target_t;
 	unordered_map<string, transform_target_t> transform_map;
 
 	void from_json(const json& j, transform_target_t& a);
@@ -206,7 +203,7 @@ namespace TransformNS
 
 	bool TransformArmor(Actor* actor, TESObjectARMO* armor)
 	{
-		ArticleNS::LoadArmors();
+		LoadArmors();
 		LoadTransforms();
 
 		string file = armor->GetFile()->fileName;
@@ -218,12 +215,12 @@ namespace TransformNS
 			return false;
 		}
 
-		vector<ArticleNS::Article> to_equip;
-		OutfitNS::Outfit outfit;
+		vector<Article> to_equip;
+		Outfit outfit;
 		if (transform_map.count(key) && transform_map.at(key).size()) {
 			const auto& outfits = transform_map.at(key);
 			outfit.articles = (outfits[rand() % outfits.size()]);
-			OutfitNS::TryOutfit(actor, outfit, false);
+			TryOutfit(actor, outfit, false);
 			return true;
 		}
 		return false;
@@ -231,10 +228,10 @@ namespace TransformNS
 
 	void from_json(const json& j, transform_target_t& a)
 	{
-		const auto& armor_map = ArticleNS::GetLoadedArmors();
+		const auto& armor_map = GetLoadedArmors();
 		for (json::const_iterator it = j.cbegin(); it != j.cend(); ++it) {
 			vector<string> tmp = it.value().get<vector<string>>();
-			vector<ArticleNS::Article> outfit;
+			vector<Article> outfit;
 
 			for (const auto& formpair : tmp) {
 				auto [mod, formID] = split_string(formpair);
@@ -244,13 +241,10 @@ namespace TransformNS
 			a.push_back(outfit);
 		}
 	}
-}
 
-namespace OutfitNS
-{
 	std::unordered_map<string, Outfit> outfit_map;
 
-	void TryOutfit(Actor* actor, const OutfitNS::Outfit& outfit, bool unequip)
+	void TryOutfit(Actor* actor, const Outfit& outfit, bool unequip)
 	{
 		ActorEquipManager* equip_manager = ActorEquipManager::GetSingleton();
 
@@ -259,10 +253,10 @@ namespace OutfitNS
 
 		std::vector<TESForm*> to_equip;
 		to_equip.reserve(outfit.articles.size());
-		for (const ArticleNS::Article& article : outfit.articles) {
+		for (const Article& article : outfit.articles) {
 			to_equip.push_back(article.form);
 		}
-		ArticleNS::AddItem(actor, to_equip, 1);
+		AddItem(actor, to_equip, 1);
 
 		for (auto& armor : to_equip)
 			equip_manager->EquipObject(actor, static_cast<TESObjectARMO*>(armor), nullptr, 1);
