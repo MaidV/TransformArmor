@@ -23,6 +23,9 @@ namespace TransformUtils
 		form(armor){};
 
 	armor_record_t armor_map;
+	std::unordered_map<string, Outfit> outfit_map;
+	unordered_map<string, transform_target_t> transform_map;
+
 
 	void LoadArmors()
 	{
@@ -156,12 +159,6 @@ namespace TransformUtils
 		};
 	}
 
-	typedef vector<vector<Article>> transform_target_t;
-	unordered_map<string, transform_target_t> transform_map;
-
-	void from_json(const json& j, transform_target_t& a);
-	void to_json(json& j, const transform_target_t& a);
-
 	void LoadTransforms()
 	{
 		if (!transform_map.empty())
@@ -241,8 +238,6 @@ namespace TransformUtils
 			a.push_back(outfit);
 		}
 	}
-
-	std::unordered_map<string, Outfit> outfit_map;
 
 	void Outfit::Equip(Actor* actor, bool unequip, bool add_to_inventory) const
 	{
