@@ -1,0 +1,14 @@
+{
+  "name": "outfitserver",
+  "version-string": "0.0.1",
+  "description": "Web based interface for Skyrim SE equipment",
+  "homepage": "",
+  "license": "MIT",
+  "dependencies": [
+    "rsm-binary-io",
+    "boost-atomic",
+    "boost-stl-interfaces",
+    "span-lite",
+    "spdlog"
+  ]
+}

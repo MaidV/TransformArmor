@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "strictPropertyInitialization": true,
+    "strictNullChecks": true,
+    "target": "es6"
+  },
+  "include": [
+    "src_www/**/*.ts",
+    "src_www/**/*.html"
+  ],
+}
