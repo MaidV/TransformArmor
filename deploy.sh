@@ -17,7 +17,7 @@ else
     exit 1
 fi
 
-diff build/OutfitServer.dll skse/plugins/OutfitServer.dll
+diff build/TransformUtils.dll skse/plugins/TransformUtils.dll
 if [ $? -eq 0 ]; then
     echo "dlls match. moving forward"
 else
