@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
 import json
-import re
-import sys
-import itertools
 
 with open('AllArmors_dump.json') as f:
     allarmor = json.load(f)
