@@ -1,0 +1,15 @@
+/.vs
+/CMakeSettings.json
+/build
+/.ccls-cache
+/.vscode
+/.ccls
+
+*.map
+/src_www/*.js
+
+.cache
+
+/node_modules
+/artifacts
+/package-lock.json
