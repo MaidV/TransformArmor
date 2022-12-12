@@ -125,9 +125,46 @@ for armor in filter(lambda armor: filter_armors(armor, "G3B", [32, 52]), allarmo
 g3btransforms = {}
 for key, val in G3Barmors.items():
     basename = val['name'].split(maxsplit=1)[1]
-    print(basename)
     for src_armor in get_armors(allarmor, [basename], prefix=True):
         g3btransforms[src_armor] = {"32": [key,]}
 
 with open('Vanilla-G3B.json', 'w', encoding ='utf8') as json_file:
     json.dump(g3btransforms, json_file, indent=2)
+
+
+
+BDarmors = {}
+mod = 'BD Standalone.esp'
+for armor in filter(lambda armor: filter_armors(armor, "", [32]), allarmor[mod].values()):
+    BDarmors[mod + '|' + armor['formID']] = {"name": armor['name'], "slots": armor['slots']}
+
+BDtransforms = {}
+for key, val in BDarmors.items():
+    basename = val['name'].split(' - ')[0]
+    for src_armor in get_armors(allarmor, [basename], prefix=True):
+        BDtransforms[src_armor] = {"32": [key,]}
+
+with open('Vanilla-BD.json', 'w', encoding ='utf8') as json_file:
+    json.dump(BDtransforms, json_file, indent=2)
+
+
+merged = {}
+for baseform,bikinis in transforms.items():
+    if baseform in BDtransforms.keys():
+        bd_form = BDtransforms[baseform]["32"][0]
+        merged[baseform] = BDtransforms[baseform]
+        merged[bd_form] = bikinis
+    if baseform in g3btransforms.keys():
+        g3b_form = g3btransforms[baseform]["32"][0]
+        if baseform in merged:
+            merged[baseform]["32"].append(g3b_form)
+        else:
+            merged[baseform] = g3btransforms[baseform]
+        merged[g3b_form] = bikinis
+
+    if baseform not in merged:
+        merged[baseform] = bikinis
+
+
+with open('Vanilla-G3B|BD-Bikini.json', 'w', encoding ='utf8') as json_file:
+    json.dump(merged, json_file, indent=2)
