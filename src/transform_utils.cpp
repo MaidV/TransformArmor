@@ -16,16 +16,15 @@ using namespace RE;
 
 namespace TransformUtils
 {
+	armor_record_t armor_map;
+	unordered_map<string, transform_target_t> transform_map;
+	unordered_map<string, Outfit> outfit_map;
+
 	Article::Article(TESObjectARMO* armor) :
 		name(armor->GetFullName()),
 		formID(mask_form<int32_t, 6>(armor)),
 		slots(static_cast<int32_t>(armor->GetSlotMask())),
 		form(armor){};
-
-	armor_record_t armor_map;
-	std::unordered_map<string, Outfit> outfit_map;
-	unordered_map<string, transform_target_t> transform_map;
-
 
 	void LoadArmors()
 	{
