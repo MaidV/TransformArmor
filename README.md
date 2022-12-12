@@ -1,25 +1,21 @@
-This is a basic plugin template for use with CommonLibSSE
+Convert armor to other armor(s) on the fly via json maps.
 
 ## Requirements
 * [CMake](https://cmake.org/)
 	* Add this to your `PATH`
-* [PowerShell](https://github.com/PowerShell/PowerShell/releases/latest)
 * [Vcpkg](https://github.com/microsoft/vcpkg)
 	* Add the environment variable `VCPKG_ROOT` with the value as the path to the folder containing vcpkg
-* [Visual Studio Community 2019](https://visualstudio.microsoft.com/)
+* [Visual Studio Community 2022](https://visualstudio.microsoft.com/)
 	* C++ Clang tools for Windows
 	* Desktop development with C++
 
-## Register Visual Studio as a Generator
-* Open `x64 Native Tools Command Prompt`
-* Run `cmake`
-* Close the cmd window
-
 ## Building
 ```
-git clone https://github.com/Ryan-rsm-McKenzie/ExamplePlugin-CommonLibSSE
-cd ExamplePlugin-CommonLibSSE
+# if using native tools command prompt
+git clone https://github.com/MaidV/TransformArmor
+cd TransformArmor
 git submodule update --init --recursive
 git submodule update --recursive --remote
-cmake -B build -S .
+cmake -B build -S . -G Ninja
+# I just use VSCode with the cmake plugin and the default generator set to Ninja
 ```
