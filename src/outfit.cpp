@@ -112,7 +112,7 @@ namespace ArticleNS
 	void DumpArmors()
 	{
 		LoadArmors();
-		const std::string dump_file("OutfitServer_Armors_Dump.json");
+		const std::string dump_file("TransformUtils_Armors_Dump.json");
 		std::ofstream out(dump_file);
 		out << json(armor_map).dump(4, ' ', false, json::error_handler_t::ignore);
 

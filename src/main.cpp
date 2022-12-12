@@ -1,8 +1,4 @@
 ﻿#include "outfit.hpp"
-#include "outfit_server.h"
-#include <thread>
-
-#include <Windows.h>
 
 namespace Plugin
 {
@@ -14,7 +10,7 @@ namespace Plugin
 		1,
 	};
 
-	inline constexpr auto NAME = "OutfitServer";
+	inline constexpr auto NAME = "TransformUtils";
 }
 
 namespace Events
@@ -48,7 +44,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		return false;
 	}
 
-	*path /= "OutfitServer.log"sv;
+	*path /= "TransformUtils.log"sv;
 	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 
@@ -63,26 +59,9 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	SKSE::Init(a_skse);
 	// Events::Register();
 
-	char buff[100];
-	const char config_file[] = "data/skse/plugins/outfitserver.ini";
-	GetPrivateProfileString("General", "bEnabled", "1", buff, 100, config_file);
-	bool bEnabled = atoi(buff);
-	logger::info("    bEnabled = {}", buff);
-
-	GetPrivateProfileString("General", "iPort", "8000", buff, 100, config_file);
-	int iPort = atoi(buff);
-	logger::info("    iPort = {}", buff);
-
-	GetPrivateProfileString("General", "bLocalOnly", "1", buff, 100, config_file);
-	bool bLocalOnly = atoi(buff);
-	logger::info("    bLocalOnly = {}", buff);
-
-	if (bEnabled)
-		std::thread(outfit_server, iPort, bLocalOnly).detach();
-
 	auto RegisterPapyrusFuncs = [](RE::BSScript::IVirtualMachine* a_vm) -> bool {
-		a_vm->RegisterFunction("TransformArmor", "OutfitServer", TransformArmor);
-		a_vm->RegisterFunction("DumpArmors", "OutfitServer", DumpArmors);
+		a_vm->RegisterFunction("TransformArmor", "TransformUtils", TransformArmor);
+		a_vm->RegisterFunction("DumpArmors", "TransformUtils", DumpArmors);
 		return true;
 	};
 
