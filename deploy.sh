@@ -17,6 +17,14 @@ else
     exit 1
 fi
 
+diff build/OutfitServer.dll skse/plugins/OutfitServer.dll
+if [ $? -eq 0 ]; then
+    echo "dlls match. moving forward"
+else
+    echo "dlls don't match. rebuild"
+    exit 1
+fi
+
 echo "Building..."
 make &> makelog
 grep "0 failed" makelog
