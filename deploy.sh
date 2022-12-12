@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-versint=$(grep "int version = " Source/Scripts/SA_MCMConfig.psc | awk '{printf "%d",$4;}')
+versint=$(grep "int version = " Source/Scripts/TA_MCMConfig.psc | awk '{printf "%d",$4;}')
 major=$((versint / 10000))
 minor=$(((versint / 100) % 100))
 patch=$((versint % 100))
 version="$major.$minor.$patch"
-archive="Sluttify Armor $version.7z"
+archive="Transform Armor $version.7z"
 
 echo "Verifying version $version"
 
-diff /mnt/c/games/Steam/steamapps/common/Skyrim\ Special\ Edition/Data/Sluttify\ Armor.esp Sluttify\ Armor.esp
+diff /mnt/c/games/Steam/steamapps/common/Skyrim\ Special\ Edition/Data/Transform\ Armor.esp Transform\ Armor.esp
 if [ $? -eq 0 ]; then
     echo "esp matches game directory"
 else
@@ -33,7 +33,7 @@ fi
 
 echo "Version $version verified, deploying"
 
-7z a "$archive" Source/Scripts/*.psc Scripts skse Sluttify\ Armor.esp
-7z l "$archive"
+7zz a "$archive" Source/Scripts/*.psc Scripts skse Transform\ Armor.esp
+7zz l "$archive"
 
 rm makelog
