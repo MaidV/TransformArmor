@@ -18,11 +18,9 @@ namespace ArticleNS
 {
 	Article::Article(TESObjectARMO* armor) :
 		name(armor->GetFullName()),
-		editorID(armor->GetFormEditorID()),
 		formID(mask_form<int32_t, 6>(armor)),
 		slots(static_cast<int32_t>(armor->GetSlotMask())),
 		form(armor){};
-
 
 	armor_record_t armor_map;
 
@@ -154,7 +152,6 @@ namespace ArticleNS
 		j = json{
 			{ "name", a.name },
 			{ "formID", mask_form<string, 6>(a.form) },
-			{ "editorID", a.editorID },
 			{ "slots", slots }
 		};
 	}
@@ -223,7 +220,6 @@ namespace TransformNS
 
 		vector<ArticleNS::Article> to_equip;
 		OutfitNS::Outfit outfit;
-		outfit.name = key;
 		if (transform_map.count(key) && transform_map.at(key).size()) {
 			const auto& outfits = transform_map.at(key);
 			outfit.articles = (outfits[rand() % outfits.size()]);
@@ -254,9 +250,6 @@ namespace OutfitNS
 {
 	std::unordered_map<string, Outfit> outfit_map;
 
-	void from_json(const json& j, Outfit& o);
-	void to_json(json& j, const Outfit& o);
-
 	void TryOutfit(Actor* actor, const OutfitNS::Outfit& outfit, bool unequip)
 	{
 		ActorEquipManager* equip_manager = ActorEquipManager::GetSingleton();
@@ -273,30 +266,5 @@ namespace OutfitNS
 
 		for (auto& armor : to_equip)
 			equip_manager->EquipObject(actor, static_cast<TESObjectARMO*>(armor), nullptr, 1);
-	}
-
-	void TryOutfit(Actor* actor, const char* outfit_str, bool unequip)
-	{
-		try {
-			Outfit outfit = json::parse(outfit_str);
-			TryOutfit(actor, outfit, unequip);
-		} catch (...) {
-			logger::info("Failed to init Outfit from json.");
-		}
-	}
-
-	void from_json(const json& j, Outfit& o)
-	{
-		j.at("name").get_to(o.name);
-		j.at("articles").get_to(o.articles);
-		outfit_map[o.name] = o;
-	}
-
-	void to_json(json& j, const Outfit& o)
-	{
-		j = json{
-			{ "name", o.name },
-			{ "articles", o.articles }
-		};
 	}
 }

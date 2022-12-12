@@ -13,11 +13,6 @@ namespace Plugin
 	inline constexpr auto NAME = "TransformUtils";
 }
 
-namespace Events
-{
-	void Register();
-}
-
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	SKSE::PluginVersionData v;
 
@@ -44,9 +39,9 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		return false;
 	}
 
-	*path /= "TransformUtils.log"sv;
+	*path /= std::string(Plugin::NAME) + ".log";
 	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
-	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+	auto log = std::make_shared<spdlog::logger>("global log", std::move(sink));
 
 	log->set_level(spdlog::level::info);
 	log->flush_on(spdlog::level::info);
@@ -57,7 +52,6 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	logger::info("{} v{}.{}.{}", Plugin::NAME, Plugin::VERSION[0], Plugin::VERSION[1], Plugin::VERSION[2]);
 
 	SKSE::Init(a_skse);
-	// Events::Register();
 
 	auto RegisterPapyrusFuncs = [](RE::BSScript::IVirtualMachine* a_vm) -> bool {
 		a_vm->RegisterFunction("TransformArmor", "TransformUtils", TransformArmor);
