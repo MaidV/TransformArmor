@@ -19,7 +19,7 @@ def get_armors(db, search_strings, excludes=None, prefix=False):
         excludes = []
     if isinstance(search_strings, str):
         prefixes = [search_strings]
-    
+
     armors = {}
     for mod in ['Skyrim.esm', 'Dawnguard.esm', 'Dragonborn.esm', 'Update.esm', 'Unofficial Skyrim Special Edition Patch.esp']:
         for string in search_strings:
@@ -31,14 +31,14 @@ def get_armors(db, search_strings, excludes=None, prefix=False):
 def get_bikini_gen(db, prefixes, slot):
     if isinstance(prefixes, str):
         prefixes = [prefixes]
-    
+
     armors = {}
     mod = 'The Amazing World of Bikini Armors REMASTERED.esp'
     for prefix in prefixes:
         for armor in filter(lambda armor: filter_armors(armor, prefix, [slot]), db[mod].values()):
             armors[mod + '|' + armor['formID']] = armor['name']
     return armors
-        
+
 def get_bikini_top(db, prefix):
     return get_bikini_gen(db, prefix, 32)
 
@@ -141,6 +141,21 @@ with open('Vanilla-BD.json', 'w', encoding ='utf8') as json_file:
     json.dump(BDtransforms, json_file, indent=2)
 
 
+CT77armors = {}
+mod = 'Remodeled Armor.esp'
+for armor in filter(lambda armor: filter_armors(armor, "", [32]), allarmor[mod].values()):
+    CT77armors[mod + '|' + armor['formID']] = {"name": armor['name'], "slots": armor['slots']}
+
+CT77transforms = {}
+for key, val in CT77armors.items():
+    basename = val['name'].split(' - ')[0]
+    for src_armor in get_armors(allarmor, [basename], prefix=True):
+        CT77transforms[src_armor] = [[key,]]
+
+with open('Vanilla-CT77.json', 'w', encoding ='utf8') as json_file:
+    json.dump(CT77transforms, json_file, indent=2)
+
+
 merged = {}
 for baseform,bikinis in transforms.items():
     if baseform in BDtransforms.keys():
@@ -155,9 +170,18 @@ for baseform,bikinis in transforms.items():
             merged[baseform] = g3btransforms[baseform]
         merged[g3b_form] = bikinis
 
+    if baseform in CT77transforms.keys():
+        CT77_form = CT77transforms[baseform][0][0]
+        if baseform in merged:
+            merged[baseform].append([CT77_form])
+        else:
+            merged[baseform] = CT77transforms[baseform]
+        merged[CT77_form] = bikinis
+
+
     if baseform not in merged:
         merged[baseform] = bikinis
 
 
-with open('Vanilla-G3B_BD-Bikini.json', 'w', encoding ='utf8') as json_file:
+with open('Vanilla-G3B_BD_CT77-Bikini.json', 'w', encoding ='utf8') as json_file:
     json.dump(merged, json_file, indent=2)
