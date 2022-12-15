@@ -6,7 +6,9 @@ import itertools
 with open('TransformUtils_Armors_Dump.json') as f:
     allarmor = json.load(f)
 
-def filter_armors(armor, search, slots, prefix=False):
+def filter_armors(armor, search, slots, prefix=False, allow_enchanted=False):
+    if not allow_enchanted and armor['enchanted']:
+        return False
     if prefix:
         return armor['name'].lower().startswith(search.lower()) and \
             set(slots).intersection(set(armor['slots']))
@@ -14,7 +16,7 @@ def filter_armors(armor, search, slots, prefix=False):
         return search.lower() in armor['name'].lower() and \
             set(slots).intersection(set(armor['slots']))
 
-def get_armors(db, search_strings, excludes=None, prefix=False):
+def get_armors(db, search_strings, excludes=None, prefix=False, allow_enchanted=False):
     if not excludes:
         excludes = []
     if isinstance(search_strings, str):
@@ -23,7 +25,7 @@ def get_armors(db, search_strings, excludes=None, prefix=False):
     armors = {}
     for mod in ['Skyrim.esm', 'Dawnguard.esm', 'Dragonborn.esm', 'Update.esm', 'Unofficial Skyrim Special Edition Patch.esp']:
         for string in search_strings:
-            for armor in filter(lambda armor: filter_armors(armor, string, [32, 52], prefix), db[mod].values()):
+            for armor in filter(lambda armor: filter_armors(armor, string, [32, 52], prefix, allow_enchanted), db[mod].values()):
                 if armor['name'] not in excludes:
                     armors[mod + '|' + armor['formID']] = armor['name']
     return armors
@@ -154,6 +156,11 @@ for key, val in CT77armors.items():
 
 with open('Vanilla-CT77.json', 'w', encoding ='utf8') as json_file:
     json.dump(CT77transforms, json_file, indent=2)
+
+
+Dezearmors = {}
+mod = 'ralfetas-deze-clothing.esp'
+
 
 
 merged = {}

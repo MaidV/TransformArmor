@@ -17,8 +17,11 @@ armor_record_t armor_map;
 unordered_map<string, transform_target_t> transform_map;
 
 Article::Article(TESObjectARMO *armor)
-    : name(armor->GetFullName()), formID(mask_form<int32_t, 6>(armor)),
-      slots(static_cast<int32_t>(armor->GetSlotMask())), form(armor){};
+    : name(armor->GetFullName()),
+      formID(mask_form<int32_t, 6>(armor)),
+      slots(static_cast<int32_t>(armor->GetSlotMask())),
+      enchanted(static_cast<bool>(armor->formEnchanting)),
+      form(armor){};
 
 void LoadArmors() {
     if (!armor_map.empty())
@@ -30,7 +33,7 @@ void LoadArmors() {
     bool ignore_skin = true;
     bool playable = true;
     bool ignore_templates = true;
-    bool ignore_enchantments = true;
+    bool ignore_enchantments = false;
     bool only_enchanted = false;
 
     std::set<TESObjectARMO *> exclude;
@@ -125,7 +128,7 @@ void to_json(json &j, const Article &a) {
         if (a.slots >> i & 1)
             slots.push_back((uint8_t)(i + 30));
     }
-    j = json{{"name", a.name}, {"formID", mask_form<string, 6>(a.form)}, {"slots", slots}};
+    j = json{{"name", a.name}, {"formID", mask_form<string, 6>(a.form)}, {"slots", slots}, {"enchanted", a.enchanted}};
 }
 
 void LoadTransforms() {

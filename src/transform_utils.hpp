@@ -9,6 +9,7 @@ struct Article {
     std::string name;
     int32_t formID;
     uint32_t slots;
+    bool enchanted;
     RE::TESObjectARMO *form;
 
     Article(){};
