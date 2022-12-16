@@ -5,10 +5,7 @@ import json
 
 from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget,
                              QMainWindow, QAction, qApp, QFileDialog, QHBoxLayout, QMenu)
-import PyQt5.Qt as Qt
 import PyQt5.QtCore as QtCore
-from PyQt5.QtGui import QMouseEvent
-
 
 def get_armor(armors, abbr_key):
     mod, form = abbr_key.split('|')
@@ -75,18 +72,32 @@ class MainWindow(QMainWindow):
             return
 
         with open(name[0], 'r') as file:
-            self._armor_db = json.load(file)
-            self.aw.update_contents(self._armor_db)
-            self.openTransformAction.setEnabled(True)
+            try:
+                armor_db = json.load(file)
+                self.aw.update_contents(armor_db)
+                self.openTransformAction.setEnabled(True)
+                self._armor_db = armor_db
+            except json.JSONDecodeError:
+                print("invalid json syntax (check for trailing commas, etc)")
+            except ValueError:
+                self.aw.clear()
+                print("Invalid json for open armor")
 
+                
     def transform_open(self):
         (name, _) = QFileDialog.getOpenFileName(self, 'Open transform map')
         if not Path(name).is_file():
             return
 
         with open(name, 'r') as file:
-            transform_db = json.load(file)
-            self.tw.update_contents(transform_db, self._armor_db)
+            try:
+                transform_db = json.load(file)
+                self.tw.update_contents(transform_db, self._armor_db)
+            except json.JSONDecodeError:
+                print("Invalid json syntax (check for trailing commas, etc")
+            except ValueError:
+                self.tw.clear()
+                print("Invalid json for open transforms")
 
     def transform_save(self):
         (name, _) = QFileDialog.getSaveFileName(self, 'Save transform map')
@@ -148,7 +159,6 @@ class TransformWidget(QTreeWidget):
         self._transform_db = {}
 
     def update_contents(self, transforms, armors):
-        self._transform_db = transforms
         self.clear()
         rows = []
         for srcform in sorted(transforms.keys(), key=str.lower):
@@ -176,6 +186,8 @@ class TransformWidget(QTreeWidget):
 
         for row in rows:
             self.addTopLevelItem(row)
+
+        self._transform_db = transforms
 
     def contextMenuEvent(self, event):
         menu = QMenu()
