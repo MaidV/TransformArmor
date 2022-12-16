@@ -9,25 +9,28 @@ from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget
 class MainWindow(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
-        self.setGeometry(0, 0, 1024, 768)
+        self.setWindowTitle("TransformArmor")
+        self.setGeometry(200, 200, 1024, 768)
+
         self.window = QWidget()
         self.workspace = QHBoxLayout()
         self.window.setLayout(self.workspace)
-        self.init_menubar()
         self.setCentralWidget(self.window)
-        self.setWindowTitle("TransformArmor")
+
+        self.init_menubar()
+
         self.aw = ArmorWidget()
         self.workspace.addChildWidget(self.aw)
 
     def init_menubar(self):
-        openFile = QAction("&Open File", self)
+        openFile = QAction("&Open armor dump", self)
         openFile.setShortcut("Ctrl+O")
-        openFile.setStatusTip('Open File')
+        openFile.setStatusTip('Open full armor database dump')
         openFile.triggered.connect(self.file_open)
 
         exitAction = QAction('&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
-        exitAction.setStatusTip('Exit application')
+        exitAction.setStatusTip('Exit')
         exitAction.triggered.connect(qApp.quit)
 
         fileMenu = self.menuBar().addMenu('&File')
@@ -35,7 +38,7 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(exitAction)
 
     def file_open(self):
-        name = QFileDialog.getOpenFileName(self, 'Open File')
+        name = QFileDialog.getOpenFileName(self, 'Open armor dump file')
         if not Path(name[0]).is_file():
             return
 
