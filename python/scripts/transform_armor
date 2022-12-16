@@ -12,16 +12,17 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("TransformArmor")
         self.setGeometry(200, 200, 1024, 768)
 
-        self.window = QWidget()
         self.workspace = QHBoxLayout()
+
+        self.window = QWidget()
         self.window.setLayout(self.workspace)
         self.setCentralWidget(self.window)
 
         self.init_menubar()
 
         self.aw = ArmorWidget()
-        self.workspace.addChildWidget(self.aw)
-
+        self.workspace.addWidget(self.aw)
+        
     def init_menubar(self):
         openFile = QAction("&Open armor dump", self)
         openFile.setShortcut("Ctrl+O")
