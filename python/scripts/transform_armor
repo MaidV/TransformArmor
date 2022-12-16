@@ -35,40 +35,42 @@ class MainWindow(QMainWindow):
 
         with open(name[0], 'r') as file:
             armors = json.load(file)
-            self.tw = armor_widget(armors, self.centralWidget())
+            self.aw = ArmorWidget(armors, self.centralWidget())
             offset = self.menuBar().height()
-            self.tw.resize(512, 728 - offset)
-            self.tw.show()
+            self.aw.resize(512, 728 - offset)
+            self.aw.show()
 
-def armor_widget(data, w):
-    rows = []
-    for mod in sorted(data.keys(), key=str.lower):
-        row = QTreeWidgetItem([mod, ""])
 
-        for form in sorted(data[mod].keys(), key=str.lower):
-            record = data[mod][form]
-            if 32 not in record['slots']:
-                continue
-            armorname = QTreeWidgetItem([record['name'] + ' (' + record['formID'] + ')', ""])
-            armortype = QTreeWidgetItem(['ArmorType', record['type']])
-            enchanted = QTreeWidgetItem(['Enchanted', str(record['enchanted'])])
-            armorslots = QTreeWidgetItem(['Slots', str(record['slots'])])
+class ArmorWidget(QTreeWidget):
+    def __init__(self, data, w):
+        super(QTreeWidget, self).__init__(w)
+        rows = []
+        for mod in sorted(data.keys(), key=str.lower):
+            row = QTreeWidgetItem([mod, ""])
+
+            for form in sorted(data[mod].keys(), key=str.lower):
+                record = data[mod][form]
+                if 32 not in record['slots']:
+                    continue
+                armorname = QTreeWidgetItem([record['name'] + ' (' + record['formID'] + ')', ""])
+                armortype = QTreeWidgetItem(['ArmorType', record['type']])
+                enchanted = QTreeWidgetItem(['Enchanted', str(record['enchanted'])])
+                armorslots = QTreeWidgetItem(['Slots', str(record['slots'])])
+                
+                armorname.addChild(armortype)
+                armorname.addChild(enchanted)
+                armorname.addChild(armorslots)
+                row.addChild(armorname)
             
-            armorname.addChild(armortype)
-            armorname.addChild(enchanted)
-            armorname.addChild(armorslots)
-            row.addChild(armorname)
-        
-        if row.childCount():
-            rows.append(row)
+            if row.childCount():
+                rows.append(row)
 
-    tw = QTreeWidget(w)
-    tw.setColumnCount(2)
-    tw.setHeaderLabels(["", "Value"])
-    for row in rows:
-        tw.addTopLevelItem(row)
 
-    return tw
+        self.setColumnCount(2)
+        self.setHeaderLabels(["", "Value"])
+        for row in rows:
+            self.addTopLevelItem(row)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
