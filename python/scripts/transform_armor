@@ -5,6 +5,10 @@ import json
 
 from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget, 
                              QMainWindow, QAction, qApp, QFileDialog, QHBoxLayout)
+import PyQt5.Qt as Qt
+import PyQt5.QtCore as QtCore
+from PyQt5.QtGui import QMouseEvent
+
 
 def get_armor(armors, abbr_key):
     mod, form = abbr_key.split('|')
@@ -113,6 +117,13 @@ class ArmorWidget(QTreeWidget):
         for row in rows:
             self.addTopLevelItem(row)
 
+class TransformSource(QTreeWidgetItem):
+    def __init__(self, args):
+        super(QTreeWidgetItem, self).__init__(args)
+
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == QtCore.Qt.RightButton:
+            print(self.data(0, QtCore.Qt.UserRole))
 
 class TransformWidget(QTreeWidget):
     def __init__(self, data={}, parent=None):
@@ -125,7 +136,9 @@ class TransformWidget(QTreeWidget):
             (srcmod, srcarmor) = get_armor(armors, srcform)
             if srcmod is None:
                 continue
-            row = QTreeWidgetItem([f"{srcarmor['name']} ({srcmod})"])
+            row = TransformSource([f"{srcarmor['name']} ({srcmod})"])
+            row.setData(0, QtCore.Qt.UserRole, srcform)
+            row.setData(1, QtCore.Qt.UserRole, srcarmor)
 
             for i, outfit in enumerate(transforms[srcform]):
                 subrows = QTreeWidgetItem([str(i)])
@@ -145,6 +158,12 @@ class TransformWidget(QTreeWidget):
 
         for row in rows:
             self.addTopLevelItem(row)
+
+    def mousePressEvent (self, event: QMouseEvent):
+        QTreeWidget.mousePressEvent(self, event)
+        if event.button() == QtCore.Qt.RightButton:
+            if (isinstance(self.currentItem(), TransformSource)):
+                self.currentItem().mousePressEvent(event)
 
 
 if __name__ == '__main__':
