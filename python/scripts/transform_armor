@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 import json
 
-from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget, 
+from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget,
                              QMainWindow, QAction, qApp, QFileDialog, QHBoxLayout, QMenu)
 import PyQt5.Qt as Qt
 import PyQt5.QtCore as QtCore
@@ -80,20 +80,21 @@ class MainWindow(QMainWindow):
             self.openTransformAction.setEnabled(True)
 
     def transform_open(self):
-        name = QFileDialog.getOpenFileName(self, 'Open transform map')
-        if not Path(name[0]).is_file():
+        (name, _) = QFileDialog.getOpenFileName(self, 'Open transform map')
+        if not Path(name).is_file():
             return
 
-        with open(name[0], 'r') as file:
+        with open(name, 'r') as file:
             transform_db = json.load(file)
             self.tw.update_contents(transform_db, self._armor_db)
 
     def transform_save(self):
-        name = QFileDialog.getSaveFileName(self, 'Save transform map')
+        (name, _) = QFileDialog.getSaveFileName(self, 'Save transform map')
+        if not name:
+            return
 
-        with open(name[0], 'w') as file:
-            transform_db = self.tw.to_dict()
-            json.dump(transform_db, file, indent=None)
+        self.tw.to_file(name)
+
 
 class ModTree(QTreeWidgetItem):
     def __init__(self, args):
@@ -107,7 +108,7 @@ class ArmorWidget(QTreeWidget):
     def __init__(self, data={}, parent=None):
         super(QTreeWidget, self).__init__(parent)
 
-    def update_contents(self, data):    
+    def update_contents(self, data):
         self.clear()
         rows = []
         for mod in sorted(data.keys(), key=str.lower):
@@ -116,19 +117,19 @@ class ArmorWidget(QTreeWidget):
 
             for form in sorted(data[mod].keys(), key=str.lower):
                 record = data[mod][form]
-                
+
                 armorname = ArmorItem([record['name'] + ' (' + record['formID'] + ')', ""])
                 armorname.setData(0, QtCore.Qt.UserRole, (mod, form))
 
                 armortype = QTreeWidgetItem(['ArmorType', record['type']])
                 enchanted = QTreeWidgetItem(['Enchanted', str(record['enchanted'])])
                 armorslots = QTreeWidgetItem(['Slots', str(record['slots'])])
-                
+
                 armorname.addChild(armortype)
                 armorname.addChild(enchanted)
                 armorname.addChild(armorslots)
                 row.addChild(armorname)
-            
+
             if row.childCount():
                 rows.append(row)
 
@@ -165,11 +166,11 @@ class TransformWidget(QTreeWidget):
                         continue
                     armorname = QTreeWidgetItem([f"{armor['name']} ({mod})"])
                     subrows.addChild(armorname)
-                
+
                 row.addChild(subrows)
 
             rows.append(row)
-            
+
         self.setColumnCount(1)
         self.setHeaderLabels(["Value"])
 
@@ -192,12 +193,16 @@ class TransformWidget(QTreeWidget):
 
         res = menu.exec_(event.globalPos())
         if res == deleteTransformSource:
-            del self._transform_db['|'.join(payload)]
-            self.takeTopLevelItem(self.indexOfTopLevelItem(selected))
+            self.remove_transform_source(selected)
 
-    def to_dict(self):
-        return self._transform_db
+    def remove_transform_source(self, item):
+        payload = item.data(0, QtCore.Qt.UserRole)
+        del self._transform_db['|'.join(payload)]
+        self.takeTopLevelItem(self.indexOfTopLevelItem(item))
 
+    def to_file(self, path):
+        with open(path, 'w') as file:
+            json.dump(self._transform_db, file, indent=2)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
