@@ -1,6 +1,9 @@
 /.vs
 /CMakeSettings.json
 /build
+/python/build
+/python/dist
+/python/transform_armor.spec
 /.ccls-cache
 /.vscode
 /.ccls
