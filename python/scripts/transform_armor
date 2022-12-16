@@ -1,13 +1,45 @@
 #!/usr/bin/env python3
 import sys
+from pathlib import Path
 import json
 
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QApplication, QWidget
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    with open('TransformUtils_Armors_Dump.json', 'r') as f:
-        data = json.load(f)
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QApplication, QWidget, QMainWindow, QAction, qApp, QFileDialog
 
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super(QMainWindow, self).__init__()
+        self.setGeometry(0, 0, 1024, 768)
+
+        openFile = QAction("&Open File", self)
+        openFile.setShortcut("Ctrl+O")
+        openFile.setStatusTip('Open File')
+        openFile.triggered.connect(self.file_open)
+
+        exitAction = QAction('&Exit', self)
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Exit application')
+        exitAction.triggered.connect(qApp.quit)
+
+        fileMenu = self.menuBar().addMenu('&File')
+        fileMenu.addAction(openFile)
+        fileMenu.addAction(exitAction)
+
+        self.setCentralWidget(QWidget())
+
+
+    def file_open(self):
+        name = QFileDialog.getOpenFileName(self, 'Open File')
+        if not Path(name[0]).is_file():
+            return
+
+        with open(name[0], 'r') as file:
+            armors = json.load(file)
+            self.tw = armor_widget(armors, self.centralWidget())
+            offset = self.menuBar().height()
+            self.tw.resize(512, 728 - offset)
+            self.tw.show()
+
+def armor_widget(data, w):
     rows = []
     for mod in sorted(data.keys(), key=str.lower):
         row = QTreeWidgetItem([mod, ""])
@@ -29,15 +61,18 @@ if __name__ == '__main__':
         if row.childCount():
             rows.append(row)
 
-    w = QWidget()
-    w.resize(1024, 768)
-
     tw = QTreeWidget(w)
-    tw.resize(1024, 768)
     tw.setColumnCount(2)
     tw.setHeaderLabels(["", "Value"])
     for row in rows:
         tw.addTopLevelItem(row)
 
+    return tw
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+
+    w = MainWindow()
     w.show()
+
     sys.exit(app.exec_())
