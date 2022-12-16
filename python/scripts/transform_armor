@@ -180,19 +180,14 @@ class TransformWidget(QTreeWidget):
     def contextMenuEvent(self, event):
         menu = QMenu()
         selected = self.currentItem()
-        if selected is None:
-            return
-        payload = selected.data(0, QtCore.Qt.UserRole)
-
-        deleteTransformSource = menu.addAction('')
+        
+        deleteTransformSource = None
         if isinstance(selected, TransformSource):
-            deleteTransformSource.setText(f'Delete "{payload}"')
-        else:
-            deleteTransformSource.setText('...')
-            deleteTransformSource.setEnabled(False)
+            payload = selected.data(0, QtCore.Qt.UserRole)
+            deleteTransformSource = menu.addAction(f'Delete "{payload}"')
 
         res = menu.exec_(event.globalPos())
-        if res == deleteTransformSource:
+        if deleteTransformSource and res == deleteTransformSource:
             self.remove_transform_source(selected)
 
     def remove_transform_source(self, item):
