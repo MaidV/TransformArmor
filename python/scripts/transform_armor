@@ -6,6 +6,14 @@ import json
 from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget, 
                              QMainWindow, QAction, qApp, QFileDialog, QHBoxLayout)
 
+def get_armor(armors, abbr_key):
+    mod, form = abbr_key.split('|')
+    if mod in armors and form in armors[mod]:
+        return mod, armors[mod][form]
+    else:
+        print(f"Can't find {abbr_key} in armor database")
+        return None, None
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
@@ -25,7 +33,10 @@ class MainWindow(QMainWindow):
 
         self.tw = TransformWidget()
         self.workspace.addWidget(self.tw)
-        
+
+        self._armor_db = {}
+        self._transform_db = {}
+
     def init_menubar(self):
         openFile = QAction("&Open armor dump", self)
         openFile.setShortcut("Ctrl+O")
@@ -35,7 +46,9 @@ class MainWindow(QMainWindow):
         openTransform = QAction("&Open transform file", self)
         openTransform.setShortcut("Ctrl+T")
         openTransform.setStatusTip('Open transform map')
-        openTransform.triggered.connect(self.transform_open)        
+        openTransform.setDisabled(True)
+        openTransform.triggered.connect(self.transform_open)
+        self.openTransformAction = openTransform
 
         exitAction = QAction('&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
@@ -53,8 +66,9 @@ class MainWindow(QMainWindow):
             return
 
         with open(name[0], 'r') as file:
-            armors = json.load(file)
-            self.aw.update_contents(armors)
+            self._armor_db = json.load(file)
+            self.aw.update_contents(self._armor_db)
+            self.openTransformAction.setEnabled(True)
 
     def transform_open(self):
         name = QFileDialog.getOpenFileName(self, 'Open transform map')
@@ -62,14 +76,13 @@ class MainWindow(QMainWindow):
             return
 
         with open(name[0], 'r') as file:
-            transforms = json.load(file)
-            self.tw.update_contents(transforms)
+            self._transform_db = json.load(file)
+            self.tw.update_contents(self._transform_db, self._armor_db)
 
 
 class ArmorWidget(QTreeWidget):
     def __init__(self, data={}, parent=None):
         super(QTreeWidget, self).__init__(parent)
-        self.update_contents(data)
 
     def update_contents(self, data):
         self.clear()
@@ -104,18 +117,23 @@ class ArmorWidget(QTreeWidget):
 class TransformWidget(QTreeWidget):
     def __init__(self, data={}, parent=None):
         super(QTreeWidget, self).__init__(parent)
-        self.update_contents(data)
 
-    def update_contents(self, data):
+    def update_contents(self, transforms, armors):
         self.clear()
         rows = []
-        for srcform in sorted(data.keys(), key=str.lower):
-            row = QTreeWidgetItem([srcform])
+        for srcform in sorted(transforms.keys(), key=str.lower):
+            (srcmod, srcarmor) = get_armor(armors, srcform)
+            if srcmod is None:
+                continue
+            row = QTreeWidgetItem([f"{srcarmor['name']} ({srcmod})"])
 
-            for i, outfit in enumerate(data[srcform]):
+            for i, outfit in enumerate(transforms[srcform]):
                 subrows = QTreeWidgetItem([str(i)])
                 for trgform in outfit:
-                    armorname = QTreeWidgetItem([trgform])
+                    (mod, armor) = get_armor(armors, trgform)
+                    if mod is None:
+                        continue
+                    armorname = QTreeWidgetItem([f"{armor['name']} ({mod})"])
                     subrows.addChild(armorname)
                 
                 row.addChild(subrows)
