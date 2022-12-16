@@ -5,6 +5,7 @@ import json
 
 from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget,
                              QMainWindow, QAction, qApp, QFileDialog, QHBoxLayout, QMenu)
+from PyQt5 import QtGui
 import PyQt5.QtCore as QtCore
 
 def get_armor(armors, abbr_key):
@@ -19,7 +20,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         self.setWindowTitle("TransformArmor")
-        self.setGeometry(200, 200, 1024, 768)
+        self.setGeometry(200, 200, 1280, 768)
 
         self.workspace = QHBoxLayout()
 
@@ -118,6 +119,7 @@ class ArmorItem(QTreeWidgetItem):
 class ArmorWidget(QTreeWidget):
     def __init__(self, data={}, parent=None):
         super(QTreeWidget, self).__init__(parent)
+        self.setDragEnabled(True)
 
     def update_contents(self, data):
         self.clear()
@@ -153,10 +155,25 @@ class TransformSource(QTreeWidgetItem):
     def __init__(self, args):
         super(QTreeWidgetItem, self).__init__(args)
 
+class TransformOutfit(QTreeWidgetItem):
+    def __init__(self, args):
+        super(QTreeWidgetItem, self).__init__(args)
+
+    def add_item(self, armors, mod, form):
+        (_, armor) = get_armor(armors, mod + "|" + form)
+        armorname = TransformItem([f"{armor['name']} ({mod})"])
+        self.addChild(armorname)
+
+class TransformItem(QTreeWidgetItem):
+    def __init__(self, args):
+        super(QTreeWidgetItem, self).__init__(args)
+
 class TransformWidget(QTreeWidget):
     def __init__(self, data={}, parent=None):
         super(QTreeWidget, self).__init__(parent)
+        self.setAcceptDrops(True)
         self._transform_db = {}
+        self._armor_db = {}
 
     def update_contents(self, transforms, armors):
         self.clear()
@@ -169,12 +186,12 @@ class TransformWidget(QTreeWidget):
             row.setData(0, QtCore.Qt.UserRole, (srcmod, srcform.split('|')[1]))
 
             for i, outfit in enumerate(transforms[srcform]):
-                subrows = QTreeWidgetItem([str(i)])
+                subrows = TransformOutfit([str(i)])
                 for trgform in outfit:
                     (mod, armor) = get_armor(armors, trgform)
                     if mod is None:
                         continue
-                    armorname = QTreeWidgetItem([f"{armor['name']} ({mod})"])
+                    armorname = TransformItem([f"{armor['name']} ({mod})"])
                     subrows.addChild(armorname)
 
                 row.addChild(subrows)
@@ -188,6 +205,7 @@ class TransformWidget(QTreeWidget):
             self.addTopLevelItem(row)
 
         self._transform_db = transforms
+        self._armor_db = armors
 
     def contextMenuEvent(self, event):
         menu = QMenu()
@@ -201,6 +219,18 @@ class TransformWidget(QTreeWidget):
         res = menu.exec_(event.globalPos())
         if deleteTransformSource and res == deleteTransformSource:
             self.remove_transform_source(selected)
+
+    def dropEvent(self, e: QtGui.QDropEvent) -> None:
+        source = e.source().currentItem()
+        target = self.itemFromIndex(self.indexAt(e.pos()))
+        if isinstance(source, ArmorItem):
+            mod, form = source.data(0, QtCore.Qt.UserRole)
+            if isinstance(target, TransformItem):
+                target = target.parent()
+            elif isinstance(target, TransformSource):
+                return
+
+            target.add_item(self._armor_db, mod, form)
 
     def remove_transform_source(self, item):
         payload = item.data(0, QtCore.Qt.UserRole)
