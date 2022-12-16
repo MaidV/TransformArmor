@@ -22,12 +22,20 @@ class MainWindow(QMainWindow):
 
         self.aw = ArmorWidget()
         self.workspace.addWidget(self.aw)
+
+        self.tw = TransformWidget()
+        self.workspace.addWidget(self.tw)
         
     def init_menubar(self):
         openFile = QAction("&Open armor dump", self)
         openFile.setShortcut("Ctrl+O")
         openFile.setStatusTip('Open full armor database dump')
-        openFile.triggered.connect(self.file_open)
+        openFile.triggered.connect(self.armor_open)
+
+        openTransform = QAction("&Open transform file", self)
+        openTransform.setShortcut("Ctrl+T")
+        openTransform.setStatusTip('Open transform map')
+        openTransform.triggered.connect(self.transform_open)        
 
         exitAction = QAction('&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
@@ -36,9 +44,10 @@ class MainWindow(QMainWindow):
 
         fileMenu = self.menuBar().addMenu('&File')
         fileMenu.addAction(openFile)
+        fileMenu.addAction(openTransform)
         fileMenu.addAction(exitAction)
 
-    def file_open(self):
+    def armor_open(self):
         name = QFileDialog.getOpenFileName(self, 'Open armor dump file')
         if not Path(name[0]).is_file():
             return
@@ -46,6 +55,15 @@ class MainWindow(QMainWindow):
         with open(name[0], 'r') as file:
             armors = json.load(file)
             self.aw.update_contents(armors)
+
+    def transform_open(self):
+        name = QFileDialog.getOpenFileName(self, 'Open transform map')
+        if not Path(name[0]).is_file():
+            return
+
+        with open(name[0], 'r') as file:
+            transforms = json.load(file)
+            self.tw.update_contents(transforms)
 
 
 class ArmorWidget(QTreeWidget):
@@ -79,6 +97,34 @@ class ArmorWidget(QTreeWidget):
 
         self.setColumnCount(2)
         self.setHeaderLabels(["", "Value"])
+        for row in rows:
+            self.addTopLevelItem(row)
+
+
+class TransformWidget(QTreeWidget):
+    def __init__(self, data={}, parent=None):
+        super(QTreeWidget, self).__init__(parent)
+        self.update_contents(data)
+
+    def update_contents(self, data):
+        self.clear()
+        rows = []
+        for srcform in sorted(data.keys(), key=str.lower):
+            row = QTreeWidgetItem([srcform])
+
+            for i, outfit in enumerate(data[srcform]):
+                subrows = QTreeWidgetItem([str(i)])
+                for trgform in outfit:
+                    armorname = QTreeWidgetItem([trgform])
+                    subrows.addChild(armorname)
+                
+                row.addChild(subrows)
+
+            rows.append(row)
+            
+        self.setColumnCount(1)
+        self.setHeaderLabels(["Value"])
+
         for row in rows:
             self.addTopLevelItem(row)
 
