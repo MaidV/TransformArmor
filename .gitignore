@@ -13,3 +13,16 @@
 /node_modules
 /artifacts
 /package-lock.json
+
+/utils/*.json
+*.egg-info
+/.venv
+
+tags
+*.dll
+*.esp
+*.pex
+*.ctags
+*Notes*
+
+/skyrim
