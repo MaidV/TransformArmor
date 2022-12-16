@@ -9,7 +9,11 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         self.setGeometry(0, 0, 1024, 768)
+        self.setCentralWidget(QWidget())
+        self.init_menubar()
+        self.setWindowTitle("TransformArmor")
 
+    def init_menubar(self):
         openFile = QAction("&Open File", self)
         openFile.setShortcut("Ctrl+O")
         openFile.setStatusTip('Open File')
@@ -23,9 +27,6 @@ class MainWindow(QMainWindow):
         fileMenu = self.menuBar().addMenu('&File')
         fileMenu.addAction(openFile)
         fileMenu.addAction(exitAction)
-
-        self.setCentralWidget(QWidget())
-
 
     def file_open(self):
         name = QFileDialog.getOpenFileName(self, 'Open File')
