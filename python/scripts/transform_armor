@@ -83,6 +83,22 @@ class MainWindow(QMainWindow):
             self._transform_db = json.load(file)
             self.tw.update_contents(self._transform_db, self._armor_db)
 
+class ModTree(QTreeWidgetItem):
+    def __init__(self, args):
+        super(QTreeWidgetItem, self).__init__(args)
+
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == QtCore.Qt.RightButton:
+            print(self.data(0, QtCore.Qt.UserRole))
+
+class ArmorItem(QTreeWidgetItem):
+    def __init__(self, args):
+        super(QTreeWidgetItem, self).__init__(args)
+
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == QtCore.Qt.RightButton:
+            print(self.data(0, QtCore.Qt.UserRole))
+
 
 class ArmorWidget(QTreeWidget):
     def __init__(self, data={}, parent=None):
@@ -92,13 +108,15 @@ class ArmorWidget(QTreeWidget):
         self.clear()
         rows = []
         for mod in sorted(data.keys(), key=str.lower):
-            row = QTreeWidgetItem([mod, ""])
+            row = ModTree([mod, ""])
+            row.setData(0, QtCore.Qt.UserRole, mod)
 
             for form in sorted(data[mod].keys(), key=str.lower):
                 record = data[mod][form]
-                if 32 not in record['slots']:
-                    continue
-                armorname = QTreeWidgetItem([record['name'] + ' (' + record['formID'] + ')', ""])
+                
+                armorname = ArmorItem([record['name'] + ' (' + record['formID'] + ')', ""])
+                armorname.setData(0, QtCore.Qt.UserRole, {'mod': mod, 'armor': record})
+
                 armortype = QTreeWidgetItem(['ArmorType', record['type']])
                 enchanted = QTreeWidgetItem(['Enchanted', str(record['enchanted'])])
                 armorslots = QTreeWidgetItem(['Slots', str(record['slots'])])
@@ -111,11 +129,18 @@ class ArmorWidget(QTreeWidget):
             if row.childCount():
                 rows.append(row)
 
-
         self.setColumnCount(2)
         self.setHeaderLabels(["", "Value"])
         for row in rows:
             self.addTopLevelItem(row)
+
+    def mousePressEvent (self, event: QMouseEvent):
+        QTreeWidget.mousePressEvent(self, event)
+        selected = self.currentItem()
+        if isinstance(selected, ModTree) or isinstance(selected, ArmorItem):
+            selected.mousePressEvent(event)
+        elif isinstance(selected, QTreeWidgetItem):
+            selected.parent().mousePressEvent(event)
 
 class TransformSource(QTreeWidgetItem):
     def __init__(self, args):
@@ -161,9 +186,9 @@ class TransformWidget(QTreeWidget):
 
     def mousePressEvent (self, event: QMouseEvent):
         QTreeWidget.mousePressEvent(self, event)
-        if event.button() == QtCore.Qt.RightButton:
-            if (isinstance(self.currentItem(), TransformSource)):
-                self.currentItem().mousePressEvent(event)
+        selected = self.currentItem()
+        if isinstance(selected, TransformSource):
+            selected.mousePressEvent(event)
 
 
 if __name__ == '__main__':
