@@ -3,15 +3,21 @@ import sys
 from pathlib import Path
 import json
 
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QApplication, QWidget, QMainWindow, QAction, qApp, QFileDialog
+from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget, 
+                             QMainWindow, QAction, qApp, QFileDialog, QHBoxLayout)
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         self.setGeometry(0, 0, 1024, 768)
-        self.setCentralWidget(QWidget())
+        self.window = QWidget()
+        self.workspace = QHBoxLayout()
+        self.window.setLayout(self.workspace)
         self.init_menubar()
+        self.setCentralWidget(self.window)
         self.setWindowTitle("TransformArmor")
+        self.aw = ArmorWidget()
+        self.workspace.addChildWidget(self.aw)
 
     def init_menubar(self):
         openFile = QAction("&Open File", self)
@@ -35,15 +41,16 @@ class MainWindow(QMainWindow):
 
         with open(name[0], 'r') as file:
             armors = json.load(file)
-            self.aw = ArmorWidget(armors, self.centralWidget())
-            offset = self.menuBar().height()
-            self.aw.resize(512, 728 - offset)
-            self.aw.show()
+            self.aw.update_contents(armors)
 
 
 class ArmorWidget(QTreeWidget):
-    def __init__(self, data, w):
-        super(QTreeWidget, self).__init__(w)
+    def __init__(self, data={}, parent=None):
+        super(QTreeWidget, self).__init__(parent)
+        self.update_contents(data)
+
+    def update_contents(self, data):
+        self.clear()
         rows = []
         for mod in sorted(data.keys(), key=str.lower):
             row = QTreeWidgetItem([mod, ""])
