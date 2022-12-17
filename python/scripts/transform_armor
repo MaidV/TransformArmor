@@ -3,23 +3,25 @@ import sys
 from pathlib import Path
 import json
 
+from typing import List, Union, Tuple
+
 from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget,
                              QMainWindow, QAction, qApp, QFileDialog, QHBoxLayout, QMenu)
 from PyQt5 import QtGui
 import PyQt5.QtCore as QtCore
 
-_armor_db = {}
-_transform_db = {}
+_armor_db: dict = {}
+_transform_db:dict = {}
 
-def update_armor_db(armors):
+def update_armor_db(armors: dict):
     global _armor_db
     _armor_db = armors
 
-def update_transform_db(transforms):
+def update_transform_db(transforms: dict):
     global _transform_db
     _transform_db = transforms
 
-def get_armor(abbr_key):
+def get_armor(abbr_key: Union[str, Tuple[str]]):
     global _armor_db
 
     if isinstance(abbr_key, str):
@@ -34,7 +36,7 @@ def get_armor(abbr_key):
         return None, None
 
 class MainWindow(QMainWindow):
-    def __init__(self, armor_file="", transform_file=""):
+    def __init__(self, armor_file: str="", transform_file: str=""):
         super(QMainWindow, self).__init__()
         self.setWindowTitle("TransformArmor")
         self.setGeometry(200, 200, 1280, 768)
@@ -88,7 +90,7 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(saveTransform)
         fileMenu.addAction(exitAction)
 
-    def armor_open(self, name=""):
+    def armor_open(self, name: str=""):
         if not name:
             (name, _) = QFileDialog.getOpenFileName(self, 'Open armor dump file')
         if not Path(name).is_file():
@@ -108,7 +110,7 @@ class MainWindow(QMainWindow):
                 print("Invalid json for open armor")
 
                 
-    def transform_open(self, name=""):
+    def transform_open(self, name: str=""):
         if not name:
             (name, _) = QFileDialog.getOpenFileName(self, 'Open transform map')
         if not Path(name).is_file():
@@ -135,17 +137,17 @@ class MainWindow(QMainWindow):
 
 
 class ModTree(QTreeWidgetItem):
-    def __init__(self, mod):
+    def __init__(self, mod: str):
         super(QTreeWidgetItem, self).__init__([mod, ""])
         self.setData(0, QtCore.Qt.UserRole, mod)
 
 class ArmorItem(QTreeWidgetItem):
-    def __init__(self, mod, form, record):
+    def __init__(self, mod: str, form: str, record: dict):
         super(QTreeWidgetItem, self).__init__([record['formID'], record['name']])
         self.add_properties(record)
         self.setData(0, QtCore.Qt.UserRole, (mod, form))
 
-    def add_properties(self, record):
+    def add_properties(self, record: dict):
         armortype = ArmorProperty(['ArmorType', record['type']])
         enchanted = ArmorProperty(['Enchanted', str(record['enchanted'])])
         armorslots = ArmorProperty(['Slots', str(record['slots'])])
@@ -155,16 +157,16 @@ class ArmorItem(QTreeWidgetItem):
         self.addChild(armorslots)
 
 class ArmorProperty(QTreeWidgetItem):
-    def __init__(self, args):
+    def __init__(self, args: List[str]):
         super(QTreeWidgetItem, self).__init__(args)
         self.setDisabled(True)
 
 class ArmorWidget(QTreeWidget):
-    def __init__(self, data={}, parent=None):
+    def __init__(self, data: dict={}, parent: Union[None, QWidget]=None):
         super(QTreeWidget, self).__init__(parent)
         self.setDragEnabled(True)
 
-    def update_contents(self, data):
+    def update_contents(self, data: dict):
         self.clear()
         mods = []
         for modname in sorted(data.keys(), key=str.lower):
@@ -192,7 +194,7 @@ class TransformOutfit(QTreeWidgetItem):
     def __init__(self, args):
         super(QTreeWidgetItem, self).__init__(args)
 
-    def add_armor(self, mod, form):
+    def add_armor(self, mod: str, form: str):
         (_, armor) = get_armor((mod, form))
         armorname = TransformItem([f"{armor['name']} ({mod})"])
         self.addChild(armorname)
@@ -202,11 +204,11 @@ class TransformItem(QTreeWidgetItem):
         super(QTreeWidgetItem, self).__init__(args)
 
 class TransformWidget(QTreeWidget):
-    def __init__(self, data={}, parent=None):
+    def __init__(self, data: dict={}, parent: Union[None, QWidget]=None):
         super(QTreeWidget, self).__init__(parent)
         self.setAcceptDrops(True)
 
-    def update_contents(self, transforms):
+    def update_contents(self, transforms: dict):
         self.clear()
         rows = []
         for srcform in sorted(transforms.keys(), key=str.lower):
@@ -268,17 +270,17 @@ class TransformWidget(QTreeWidget):
 
             target.add_armor(mod, form)
 
-    def remove_transform_source(self, item):
+    def remove_transform_source(self, item: TransformItem):
         payload = item.data(0, QtCore.Qt.UserRole)
         global _transform_db
         del _transform_db['|'.join(payload)]
         self.takeTopLevelItem(self.indexOfTopLevelItem(item))
 
-    def remove_transform_outfit(self, item):
-        payload = item.data(0, QtCore.Qt.UserRole)
+    def remove_transform_outfit(self, outfit: TransformOutfit):
+        payload = outfit.data(0, QtCore.Qt.UserRole)
         print(payload)
 
-    def to_file(self, path):
+    def to_file(self, path: str):
         global _transform_db
         
         with open(path, 'w') as file:
