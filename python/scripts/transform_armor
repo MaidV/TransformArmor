@@ -5,21 +5,24 @@ import json
 
 from typing import List, Union, Tuple
 
-from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget,
-                             QMainWindow, QAction, qApp, QFileDialog, QHBoxLayout, QMenu)
+from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget, QMainWindow, QAction, qApp,
+                             QFileDialog, QHBoxLayout, QMenu)
 from PyQt5 import QtGui
 import PyQt5.QtCore as QtCore
 
 _armor_db: dict = {}
-_transform_db:dict = {}
+_transform_db: dict = {}
+
 
 def update_armor_db(armors: dict):
     global _armor_db
     _armor_db = armors
 
+
 def update_transform_db(transforms: dict):
     global _transform_db
     _transform_db = transforms
+
 
 def get_armor(abbr_key: Union[str, Tuple[str]]):
     global _armor_db
@@ -28,15 +31,17 @@ def get_armor(abbr_key: Union[str, Tuple[str]]):
         mod, form = abbr_key.split('|')
     else:
         mod, form = abbr_key
-    
+
     if mod in _armor_db and form in _armor_db[mod]:
         return mod, _armor_db[mod][form]
     else:
         print(f"Can't find {abbr_key} in armor database")
         return None, None
 
+
 class MainWindow(QMainWindow):
-    def __init__(self, armor_file: str="", transform_file: str=""):
+
+    def __init__(self, armor_file: str = "", transform_file: str = ""):
         super(QMainWindow, self).__init__()
         self.setWindowTitle("TransformArmor")
         self.setGeometry(200, 200, 1280, 768)
@@ -59,7 +64,6 @@ class MainWindow(QMainWindow):
             self.armor_open(armor_file)
         if transform_file:
             self.transform_open(transform_file)
-
 
     def init_menubar(self):
         openFile = QAction("&Open armor dump", self)
@@ -90,7 +94,7 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(saveTransform)
         fileMenu.addAction(exitAction)
 
-    def armor_open(self, name: str=""):
+    def armor_open(self, name: str = ""):
         if not name:
             (name, _) = QFileDialog.getOpenFileName(self, 'Open armor dump file')
         if not Path(name).is_file():
@@ -109,8 +113,7 @@ class MainWindow(QMainWindow):
                 self._aw.clear()
                 print("Invalid json for open armor")
 
-                
-    def transform_open(self, name: str=""):
+    def transform_open(self, name: str = ""):
         if not name:
             (name, _) = QFileDialog.getOpenFileName(self, 'Open transform map')
         if not Path(name).is_file():
@@ -137,11 +140,14 @@ class MainWindow(QMainWindow):
 
 
 class ModTree(QTreeWidgetItem):
+
     def __init__(self, mod: str):
         super(QTreeWidgetItem, self).__init__([mod, ""])
         self.setData(0, QtCore.Qt.UserRole, mod)
 
+
 class ArmorItem(QTreeWidgetItem):
+
     def __init__(self, mod: str, form: str, record: dict):
         super(QTreeWidgetItem, self).__init__([record['formID'], record['name']])
         self.add_properties(record)
@@ -156,13 +162,17 @@ class ArmorItem(QTreeWidgetItem):
         self.addChild(enchanted)
         self.addChild(armorslots)
 
+
 class ArmorProperty(QTreeWidgetItem):
+
     def __init__(self, args: List[str]):
         super(QTreeWidgetItem, self).__init__(args)
         self.setDisabled(True)
 
+
 class ArmorWidget(QTreeWidget):
-    def __init__(self, data: dict={}, parent: Union[None, QWidget]=None):
+
+    def __init__(self, data: dict = {}, parent: Union[None, QWidget] = None):
         super(QTreeWidget, self).__init__(parent)
         self.setDragEnabled(True)
 
@@ -179,18 +189,21 @@ class ArmorWidget(QTreeWidget):
             if mod.childCount():
                 mods.append(mod)
 
-
         self.setColumnCount(2)
         self.setHeaderLabels(["", ""])
         for mod in mods:
             self.addTopLevelItem(mod)
             mod.sortChildren(1, QtCore.Qt.SortOrder(0))
 
+
 class TransformSource(QTreeWidgetItem):
+
     def __init__(self, args):
         super(QTreeWidgetItem, self).__init__(args)
 
+
 class TransformOutfit(QTreeWidgetItem):
+
     def __init__(self, args):
         super(QTreeWidgetItem, self).__init__(args)
 
@@ -199,12 +212,16 @@ class TransformOutfit(QTreeWidgetItem):
         armorname = TransformItem([f"{armor['name']} ({mod})"])
         self.addChild(armorname)
 
+
 class TransformItem(QTreeWidgetItem):
+
     def __init__(self, args):
         super(QTreeWidgetItem, self).__init__(args)
 
+
 class TransformWidget(QTreeWidget):
-    def __init__(self, data: dict={}, parent: Union[None, QWidget]=None):
+
+    def __init__(self, data: dict = {}, parent: Union[None, QWidget] = None):
         super(QTreeWidget, self).__init__(parent)
         self.setAcceptDrops(True)
 
@@ -238,11 +255,10 @@ class TransformWidget(QTreeWidget):
         for row in rows:
             self.addTopLevelItem(row)
 
-
     def contextMenuEvent(self, e: QtGui.QContextMenuEvent):
         menu = QMenu()
         selected = self.currentItem()
-        
+
         deleteTransformSource = None
         deleteTransformOutfit = None
         if isinstance(selected, TransformSource):
@@ -282,9 +298,10 @@ class TransformWidget(QTreeWidget):
 
     def to_file(self, path: str):
         global _transform_db
-        
+
         with open(path, 'w') as file:
             json.dump(_transform_db, file, indent=2)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
