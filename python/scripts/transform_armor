@@ -127,8 +127,9 @@ class MainWindow(QMainWindow):
 
 
 class ModTree(QTreeWidgetItem):
-    def __init__(self, args):
-        super(QTreeWidgetItem, self).__init__(args)
+    def __init__(self, mod):
+        super(QTreeWidgetItem, self).__init__([mod, ""])
+        self.setData(0, QtCore.Qt.UserRole, mod)
 
 class ArmorItem(QTreeWidgetItem):
     def __init__(self, mod, form, record):
@@ -157,22 +158,21 @@ class ArmorWidget(QTreeWidget):
 
     def update_contents(self, data):
         self.clear()
-        rows = []
-        for mod in sorted(data.keys(), key=str.lower):
-            row = ModTree([mod, ""])
-            row.setData(0, QtCore.Qt.UserRole, mod)
+        mods = []
+        for modname in sorted(data.keys(), key=str.lower):
+            mod = ModTree(modname)
 
-            for form in sorted(data[mod].keys(), key=str.lower):
-                armorname = ArmorItem(mod, form, data[mod][form])
-                row.addChild(armorname)
+            for form in sorted(data[modname].keys(), key=str.lower):
+                armorname = ArmorItem(modname, form, data[modname][form])
+                mod.addChild(armorname)
 
-            if row.childCount():
-                rows.append(row)
+            if mod.childCount():
+                mods.append(mod)
 
         self.setColumnCount(2)
         self.setHeaderLabels(["", "Value"])
-        for row in rows:
-            self.addTopLevelItem(row)
+        for mod in mods:
+            self.addTopLevelItem(mod)
 
 class TransformSource(QTreeWidgetItem):
     def __init__(self, args):
@@ -182,7 +182,7 @@ class TransformOutfit(QTreeWidgetItem):
     def __init__(self, args):
         super(QTreeWidgetItem, self).__init__(args)
 
-    def add_item(self, mod, form):
+    def add_armor(self, mod, form):
         (_, armor) = get_armor((mod, form))
         armorname = TransformItem([f"{armor['name']} ({mod})"])
         self.addChild(armorname)
@@ -257,7 +257,7 @@ class TransformWidget(QTreeWidget):
             elif isinstance(target, TransformSource):
                 return
 
-            target.add_item(mod, form)
+            target.add_armor(mod, form)
 
     def remove_transform_source(self, item):
         payload = item.data(0, QtCore.Qt.UserRole)
