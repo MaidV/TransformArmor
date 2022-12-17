@@ -9,7 +9,11 @@ from PyQt5 import QtGui
 import PyQt5.QtCore as QtCore
 
 def get_armor(armors, abbr_key):
-    mod, form = abbr_key.split('|')
+    if isinstance(abbr_key, str):
+        mod, form = abbr_key.split('|')
+    else:
+        mod, form = abbr_key
+    
     if mod in armors and form in armors[mod]:
         return mod, armors[mod][form]
     else:
@@ -113,6 +117,21 @@ class ModTree(QTreeWidgetItem):
         super(QTreeWidgetItem, self).__init__(args)
 
 class ArmorItem(QTreeWidgetItem):
+    def __init__(self, mod, form, record):
+        super(QTreeWidgetItem, self).__init__([f"{record['name']} ({record['formID']})", ""])
+        self.add_properties(record)
+        self.setData(0, QtCore.Qt.UserRole, (mod, form))
+
+    def add_properties(self, record):
+        armortype = ArmorProperty(['ArmorType', record['type']])
+        enchanted = ArmorProperty(['Enchanted', str(record['enchanted'])])
+        armorslots = ArmorProperty(['Slots', str(record['slots'])])
+
+        self.addChild(armortype)
+        self.addChild(enchanted)
+        self.addChild(armorslots)
+
+class ArmorProperty(QTreeWidgetItem):
     def __init__(self, args):
         super(QTreeWidgetItem, self).__init__(args)
 
@@ -129,18 +148,7 @@ class ArmorWidget(QTreeWidget):
             row.setData(0, QtCore.Qt.UserRole, mod)
 
             for form in sorted(data[mod].keys(), key=str.lower):
-                record = data[mod][form]
-
-                armorname = ArmorItem([record['name'] + ' (' + record['formID'] + ')', ""])
-                armorname.setData(0, QtCore.Qt.UserRole, (mod, form))
-
-                armortype = QTreeWidgetItem(['ArmorType', record['type']])
-                enchanted = QTreeWidgetItem(['Enchanted', str(record['enchanted'])])
-                armorslots = QTreeWidgetItem(['Slots', str(record['slots'])])
-
-                armorname.addChild(armortype)
-                armorname.addChild(enchanted)
-                armorname.addChild(armorslots)
+                armorname = ArmorItem(mod, form, data[mod][form])
                 row.addChild(armorname)
 
             if row.childCount():
@@ -160,7 +168,7 @@ class TransformOutfit(QTreeWidgetItem):
         super(QTreeWidgetItem, self).__init__(args)
 
     def add_item(self, armors, mod, form):
-        (_, armor) = get_armor(armors, mod + "|" + form)
+        (_, armor) = get_armor(armors, (mod, form))
         armorname = TransformItem([f"{armor['name']} ({mod})"])
         self.addChild(armorname)
 
@@ -185,6 +193,7 @@ class TransformWidget(QTreeWidget):
             row = TransformSource([f"{srcarmor['name']} ({srcmod})"])
             row.setData(0, QtCore.Qt.UserRole, (srcmod, srcform.split('|')[1]))
 
+            # FIXME: Refactor so TransformOutfits are deletable from database
             for i, outfit in enumerate(transforms[srcform]):
                 subrows = TransformOutfit([str(i)])
                 for trgform in outfit:
@@ -212,13 +221,19 @@ class TransformWidget(QTreeWidget):
         selected = self.currentItem()
         
         deleteTransformSource = None
+        deleteTransformOutfit = None
         if isinstance(selected, TransformSource):
             payload = selected.data(0, QtCore.Qt.UserRole)
             deleteTransformSource = menu.addAction(f'Delete "{payload}"')
+        if isinstance(selected, TransformOutfit):
+            payload = selected.data(0, QtCore.Qt.UserRole)
+            deleteTransformOutfit = menu.addAction(f'Delete "{payload}"')
 
         res = menu.exec_(event.globalPos())
         if deleteTransformSource and res == deleteTransformSource:
             self.remove_transform_source(selected)
+        if deleteTransformOutfit and res == deleteTransformOutfit:
+            self.remove_transform_outfit(selected)
 
     def dropEvent(self, e: QtGui.QDropEvent) -> None:
         source = e.source().currentItem()
@@ -236,6 +251,10 @@ class TransformWidget(QTreeWidget):
         payload = item.data(0, QtCore.Qt.UserRole)
         del self._transform_db['|'.join(payload)]
         self.takeTopLevelItem(self.indexOfTopLevelItem(item))
+
+    def remove_transform_outfit(self, item):
+        payload = item.data(0, QtCore.Qt.UserRole)
+        print(payload)
 
     def to_file(self, path):
         with open(path, 'w') as file:
