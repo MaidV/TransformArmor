@@ -11,7 +11,7 @@ import PyQt5.QtCore as QtCore
 _armor_db = {}
 _transform_db = {}
 
-def get_armor(armors, abbr_key):
+def get_armor(abbr_key):
     global _armor_db
 
     if isinstance(abbr_key, str):
@@ -201,7 +201,7 @@ class TransformWidget(QTreeWidget):
         self.clear()
         rows = []
         for srcform in sorted(transforms.keys(), key=str.lower):
-            (srcmod, srcarmor) = get_armor(_armor_db, srcform)
+            (srcmod, srcarmor) = get_armor(srcform)
             if srcmod is None:
                 continue
             row = TransformSource([f"{srcarmor['name']} ({srcmod})"])
@@ -211,7 +211,7 @@ class TransformWidget(QTreeWidget):
             for i, outfit in enumerate(transforms[srcform]):
                 subrows = TransformOutfit([str(i)])
                 for trgform in outfit:
-                    (mod, armor) = get_armor(_armor_db, trgform)
+                    (mod, armor) = get_armor(trgform)
                     if mod is None:
                         continue
                     armorname = TransformItem([f"{armor['name']} ({mod})"])
