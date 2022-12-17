@@ -11,6 +11,14 @@ import PyQt5.QtCore as QtCore
 _armor_db = {}
 _transform_db = {}
 
+def update_armor_db(armors):
+    global _armor_db
+    _armor_db = armors
+
+def update_transform_db(transforms):
+    global _transform_db
+    _transform_db = transforms
+
 def get_armor(abbr_key):
     global _armor_db
 
@@ -91,8 +99,8 @@ class MainWindow(QMainWindow):
                 armor_db = json.load(file)
                 self._aw.update_contents(armor_db)
                 self.openTransformAction.setEnabled(True)
-                global _armor_db
-                _armor_db = armor_db
+                update_armor_db(armor_db)
+
             except json.JSONDecodeError:
                 print("invalid json syntax (check for trailing commas, etc)")
             except ValueError:
@@ -197,7 +205,6 @@ class TransformWidget(QTreeWidget):
         self.setAcceptDrops(True)
 
     def update_contents(self, transforms):
-        global _armor_db
         self.clear()
         rows = []
         for srcform in sorted(transforms.keys(), key=str.lower):
@@ -228,7 +235,7 @@ class TransformWidget(QTreeWidget):
             self.addTopLevelItem(row)
 
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, e: QtGui.QContextMenuEvent):
         menu = QMenu()
         selected = self.currentItem()
         
@@ -241,7 +248,7 @@ class TransformWidget(QTreeWidget):
             payload = selected.data(0, QtCore.Qt.UserRole)
             deleteTransformOutfit = menu.addAction(f'Delete "{payload}"')
 
-        res = menu.exec_(event.globalPos())
+        res = menu.exec_(e.globalPos())
         if deleteTransformSource and res == deleteTransformSource:
             self.remove_transform_source(selected)
         if deleteTransformOutfit and res == deleteTransformOutfit:
@@ -271,6 +278,7 @@ class TransformWidget(QTreeWidget):
 
     def to_file(self, path):
         global _transform_db
+        
         with open(path, 'w') as file:
             json.dump(_transform_db, file, indent=2)
 
