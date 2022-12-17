@@ -8,14 +8,19 @@ from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget
 from PyQt5 import QtGui
 import PyQt5.QtCore as QtCore
 
+_armor_db = {}
+_transform_db = {}
+
 def get_armor(armors, abbr_key):
+    global _armor_db
+
     if isinstance(abbr_key, str):
         mod, form = abbr_key.split('|')
     else:
         mod, form = abbr_key
     
-    if mod in armors and form in armors[mod]:
-        return mod, armors[mod][form]
+    if mod in _armor_db and form in _armor_db[mod]:
+        return mod, _armor_db[mod][form]
     else:
         print(f"Can't find {abbr_key} in armor database")
         return None, None
@@ -40,13 +45,11 @@ class MainWindow(QMainWindow):
         self._tw = TransformWidget()
         self._workspace.addWidget(self._tw)
 
-        self._armor_db = {}
-
         if armor_file:
             self.armor_open(armor_file)
         if transform_file:
             self.transform_open(transform_file)
-        
+
 
     def init_menubar(self):
         openFile = QAction("&Open armor dump", self)
@@ -88,7 +91,8 @@ class MainWindow(QMainWindow):
                 armor_db = json.load(file)
                 self._aw.update_contents(armor_db)
                 self.openTransformAction.setEnabled(True)
-                self._armor_db = armor_db
+                global _armor_db
+                _armor_db = armor_db
             except json.JSONDecodeError:
                 print("invalid json syntax (check for trailing commas, etc)")
             except ValueError:
@@ -105,7 +109,9 @@ class MainWindow(QMainWindow):
         with open(name, 'r') as file:
             try:
                 transform_db = json.load(file)
-                self._tw.update_contents(transform_db, self._armor_db)
+                self._tw.update_contents(transform_db)
+                global _transform_db
+                _transform_db = transform_db
             except json.JSONDecodeError:
                 print("Invalid json syntax (check for trailing commas, etc")
             except ValueError:
@@ -176,8 +182,8 @@ class TransformOutfit(QTreeWidgetItem):
     def __init__(self, args):
         super(QTreeWidgetItem, self).__init__(args)
 
-    def add_item(self, armors, mod, form):
-        (_, armor) = get_armor(armors, (mod, form))
+    def add_item(self, mod, form):
+        (_, armor) = get_armor((mod, form))
         armorname = TransformItem([f"{armor['name']} ({mod})"])
         self.addChild(armorname)
 
@@ -189,14 +195,13 @@ class TransformWidget(QTreeWidget):
     def __init__(self, data={}, parent=None):
         super(QTreeWidget, self).__init__(parent)
         self.setAcceptDrops(True)
-        self._transform_db = {}
-        self._armor_db = {}
 
-    def update_contents(self, transforms, armors):
+    def update_contents(self, transforms):
+        global _armor_db
         self.clear()
         rows = []
         for srcform in sorted(transforms.keys(), key=str.lower):
-            (srcmod, srcarmor) = get_armor(armors, srcform)
+            (srcmod, srcarmor) = get_armor(_armor_db, srcform)
             if srcmod is None:
                 continue
             row = TransformSource([f"{srcarmor['name']} ({srcmod})"])
@@ -206,7 +211,7 @@ class TransformWidget(QTreeWidget):
             for i, outfit in enumerate(transforms[srcform]):
                 subrows = TransformOutfit([str(i)])
                 for trgform in outfit:
-                    (mod, armor) = get_armor(armors, trgform)
+                    (mod, armor) = get_armor(_armor_db, trgform)
                     if mod is None:
                         continue
                     armorname = TransformItem([f"{armor['name']} ({mod})"])
@@ -222,8 +227,6 @@ class TransformWidget(QTreeWidget):
         for row in rows:
             self.addTopLevelItem(row)
 
-        self._transform_db = transforms
-        self._armor_db = armors
 
     def contextMenuEvent(self, event):
         menu = QMenu()
@@ -254,11 +257,12 @@ class TransformWidget(QTreeWidget):
             elif isinstance(target, TransformSource):
                 return
 
-            target.add_item(self._armor_db, mod, form)
+            target.add_item(mod, form)
 
     def remove_transform_source(self, item):
         payload = item.data(0, QtCore.Qt.UserRole)
-        del self._transform_db['|'.join(payload)]
+        global _transform_db
+        del _transform_db['|'.join(payload)]
         self.takeTopLevelItem(self.indexOfTopLevelItem(item))
 
     def remove_transform_outfit(self, item):
@@ -266,8 +270,9 @@ class TransformWidget(QTreeWidget):
         print(payload)
 
     def to_file(self, path):
+        global _transform_db
         with open(path, 'w') as file:
-            json.dump(self._transform_db, file, indent=2)
+            json.dump(_transform_db, file, indent=2)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
