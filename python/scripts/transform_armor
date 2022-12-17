@@ -141,7 +141,7 @@ class ModTree(QTreeWidgetItem):
 
 class ArmorItem(QTreeWidgetItem):
     def __init__(self, mod, form, record):
-        super(QTreeWidgetItem, self).__init__([f"{record['name']} ({record['formID']})", ""])
+        super(QTreeWidgetItem, self).__init__([record['formID'], record['name']])
         self.add_properties(record)
         self.setData(0, QtCore.Qt.UserRole, (mod, form))
 
@@ -177,10 +177,12 @@ class ArmorWidget(QTreeWidget):
             if mod.childCount():
                 mods.append(mod)
 
+
         self.setColumnCount(2)
-        self.setHeaderLabels(["", "Value"])
+        self.setHeaderLabels(["", ""])
         for mod in mods:
             self.addTopLevelItem(mod)
+            mod.sortChildren(1, QtCore.Qt.SortOrder(0))
 
 class TransformSource(QTreeWidgetItem):
     def __init__(self, args):
@@ -229,7 +231,7 @@ class TransformWidget(QTreeWidget):
             rows.append(row)
 
         self.setColumnCount(1)
-        self.setHeaderLabels(["Value"])
+        self.setHeaderLabels([""])
 
         for row in rows:
             self.addTopLevelItem(row)
