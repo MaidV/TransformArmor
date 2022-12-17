@@ -21,26 +21,32 @@ def get_armor(armors, abbr_key):
         return None, None
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, armor_file="", transform_file=""):
         super(QMainWindow, self).__init__()
         self.setWindowTitle("TransformArmor")
         self.setGeometry(200, 200, 1280, 768)
 
-        self.workspace = QHBoxLayout()
+        self._workspace = QHBoxLayout()
 
         self.window = QWidget()
-        self.window.setLayout(self.workspace)
+        self.window.setLayout(self._workspace)
         self.setCentralWidget(self.window)
 
         self.init_menubar()
 
-        self.aw = ArmorWidget()
-        self.workspace.addWidget(self.aw)
+        self._aw = ArmorWidget()
+        self._workspace.addWidget(self._aw)
 
-        self.tw = TransformWidget()
-        self.workspace.addWidget(self.tw)
+        self._tw = TransformWidget()
+        self._workspace.addWidget(self._tw)
 
         self._armor_db = {}
+
+        if armor_file:
+            self.armor_open(armor_file)
+        if transform_file:
+            self.transform_open(transform_file)
+        
 
     def init_menubar(self):
         openFile = QAction("&Open armor dump", self)
@@ -71,37 +77,39 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(saveTransform)
         fileMenu.addAction(exitAction)
 
-    def armor_open(self):
-        name = QFileDialog.getOpenFileName(self, 'Open armor dump file')
-        if not Path(name[0]).is_file():
+    def armor_open(self, name=""):
+        if not name:
+            (name, _) = QFileDialog.getOpenFileName(self, 'Open armor dump file')
+        if not Path(name).is_file():
             return
 
-        with open(name[0], 'r') as file:
+        with open(name, 'r') as file:
             try:
                 armor_db = json.load(file)
-                self.aw.update_contents(armor_db)
+                self._aw.update_contents(armor_db)
                 self.openTransformAction.setEnabled(True)
                 self._armor_db = armor_db
             except json.JSONDecodeError:
                 print("invalid json syntax (check for trailing commas, etc)")
             except ValueError:
-                self.aw.clear()
+                self._aw.clear()
                 print("Invalid json for open armor")
 
                 
-    def transform_open(self):
-        (name, _) = QFileDialog.getOpenFileName(self, 'Open transform map')
+    def transform_open(self, name=""):
+        if not name:
+            (name, _) = QFileDialog.getOpenFileName(self, 'Open transform map')
         if not Path(name).is_file():
             return
 
         with open(name, 'r') as file:
             try:
                 transform_db = json.load(file)
-                self.tw.update_contents(transform_db, self._armor_db)
+                self._tw.update_contents(transform_db, self._armor_db)
             except json.JSONDecodeError:
                 print("Invalid json syntax (check for trailing commas, etc")
             except ValueError:
-                self.tw.clear()
+                self._tw.clear()
                 print("Invalid json for open transforms")
 
     def transform_save(self):
@@ -109,7 +117,7 @@ class MainWindow(QMainWindow):
         if not name:
             return
 
-        self.tw.to_file(name)
+        self._tw.to_file(name)
 
 
 class ModTree(QTreeWidgetItem):
@@ -134,6 +142,7 @@ class ArmorItem(QTreeWidgetItem):
 class ArmorProperty(QTreeWidgetItem):
     def __init__(self, args):
         super(QTreeWidgetItem, self).__init__(args)
+        self.setDisabled(True)
 
 class ArmorWidget(QTreeWidget):
     def __init__(self, data={}, parent=None):
@@ -263,7 +272,8 @@ class TransformWidget(QTreeWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    w = MainWindow()
+    print(sys.argv[1:])
+    w = MainWindow(*sys.argv[1:])
     w.show()
 
     sys.exit(app.exec_())
