@@ -3,8 +3,8 @@ echo $(date)
 
 skyrim="C:\games\Steam\steamapps\common\Skyrim Special Edition"
 skyrimdata="${skyrim}\Data"
-outputpath="C:\Users\Bobiert\Documents\Projects\SluttifyArmor\Scripts"
-scriptpath="C:\Users\Bobiert\Documents\Projects\SluttifyArmor\Source\Scripts"
+outputpath="C:\Users\Bobiert\Documents\Projects\TransformArmor\Scripts"
+scriptpath="C:\Users\Bobiert\Documents\Projects\TransformArmor\Source\Scripts"
 source="$scriptpath;${skyrimdata}\Source;${skyrimdata}\Source\Scripts;${skyrimdata}\Scripts\Source"
 papyrus="/mnt/c/games/Steam/steamapps/common/Skyrim Special Edition/Papyrus Compiler/PapyrusCompiler.exe"
 
