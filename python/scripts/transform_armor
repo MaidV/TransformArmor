@@ -11,17 +11,11 @@ from PyQt5 import QtGui
 import PyQt5.QtCore as QtCore
 
 _armor_db: dict = {}
-_transform_db: dict = {}
 
 
 def update_armor_db(armors: dict):
     global _armor_db
     _armor_db = armors
-
-
-def update_transform_db(transforms: dict):
-    global _transform_db
-    _transform_db = transforms
 
 
 def get_armor(abbr_key: Union[str, Tuple[str]]):
@@ -122,8 +116,6 @@ class MainWindow(QMainWindow):
             try:
                 transform_db = json.load(file)
                 self._tw.update_contents(transform_db)
-                global _transform_db
-                _transform_db = transform_db
             except json.JSONDecodeError:
                 print("Invalid json syntax (check for trailing commas, etc")
             except ValueError:
@@ -282,7 +274,7 @@ class ArmorWidget(QTreeWidget):
                 armor = mod.child(j)
                 if textsearch not in armor.record['name'].lower():
                     armor.setHidden(True)
-    
+
     def filter_kw(self):
         if self.kw_filter is None:
             return
@@ -298,7 +290,7 @@ class ArmorWidget(QTreeWidget):
                         hide = False
                 if hide:
                     armor.setHidden(True)
-    
+
     def update_contents(self, data: dict):
         self.clear()
         mods = []
@@ -321,8 +313,11 @@ class ArmorWidget(QTreeWidget):
 
 class TransformSource(QTreeWidgetItem):
 
-    def __init__(self, args):
-        super(QTreeWidgetItem, self).__init__(args)
+    def __init__(self, mod, armor):
+        super(QTreeWidgetItem, self).__init__([mod, armor['name']])
+        self.mod = mod
+        self.form = armor['formID']
+        self.record = armor
 
 
 class TransformOutfit(QTreeWidgetItem):
@@ -330,16 +325,22 @@ class TransformOutfit(QTreeWidgetItem):
     def __init__(self, args):
         super(QTreeWidgetItem, self).__init__(args)
 
-    def add_armor(self, mod: str, form: str):
-        (_, armor) = get_armor((mod, form))
-        armorname = TransformItem([f"{armor['name']} ({mod})"])
+    def add_armor(self, modform: str):
+        (mod, armor) = get_armor(modform)
+        if mod is None:
+            return
+
+        armorname = TransformItem(mod, armor)
         self.addChild(armorname)
 
 
 class TransformItem(QTreeWidgetItem):
 
-    def __init__(self, args):
-        super(QTreeWidgetItem, self).__init__(args)
+    def __init__(self, mod: str, armor: dict):
+        super(QTreeWidgetItem, self).__init__([mod, armor['name']])
+        self.mod = mod
+        self.form = armor['formID']
+        self.record = armor
 
 
 class TransformWidget(QTreeWidget):
@@ -347,6 +348,8 @@ class TransformWidget(QTreeWidget):
     def __init__(self, data: dict = {}, parent: Union[None, QWidget] = None):
         super(QTreeWidget, self).__init__(parent)
         self.setAcceptDrops(True)
+        self.setColumnCount(2)
+        self.setHeaderLabels(["", ""])
 
     def update_contents(self, transforms: dict):
         self.clear()
@@ -355,25 +358,18 @@ class TransformWidget(QTreeWidget):
             (srcmod, srcarmor) = get_armor(srcform)
             if srcmod is None:
                 continue
-            row = TransformSource([srcmod, srcarmor['name']])
+            row = TransformSource(srcmod, srcarmor)
             row.setData(0, QtCore.Qt.UserRole, (srcmod, srcform.split('|')[1]))
 
             # FIXME: Refactor so TransformOutfits are deletable from database
             for i, outfit in enumerate(transforms[srcform]):
-                subrows = TransformOutfit([str(i)])
+                subrows = TransformOutfit([str(i).rjust(3, '0')])
                 for trgform in outfit:
-                    (mod, armor) = get_armor(trgform)
-                    if mod is None:
-                        continue
-                    armorname = TransformItem([f"{armor['name']} ({mod})"])
-                    subrows.addChild(armorname)
+                    subrows.add_armor(trgform)
 
                 row.addChild(subrows)
 
             rows.append(row)
-
-        self.setColumnCount(2)
-        self.setHeaderLabels(["", ""])
 
         for row in rows:
             self.addTopLevelItem(row)
@@ -414,8 +410,6 @@ class TransformWidget(QTreeWidget):
 
     def remove_transform_source(self, item: TransformItem):
         payload = item.data(0, QtCore.Qt.UserRole)
-        global _transform_db
-        del _transform_db['|'.join(payload)]
         self.takeTopLevelItem(self.indexOfTopLevelItem(item))
 
     def remove_transform_outfit(self, outfit: TransformOutfit):
@@ -423,10 +417,26 @@ class TransformWidget(QTreeWidget):
         print(payload)
 
     def to_file(self, path: str):
-        global _transform_db
-
         with open(path, 'w') as file:
-            json.dump(_transform_db, file, indent=2)
+            file.write(self.to_json())
+
+    def to_json(self) -> str:
+        db = {}
+
+        for isource in range(self.topLevelItemCount()):
+            source: TransformSource = self.topLevelItem(isource)
+            outlist = []
+            for ioutfit in range(source.childCount()):
+                outfit: TransformOutfit = source.child(ioutfit)
+                itemlist = []
+                for iitem in range(outfit.childCount()):
+                    item: TransformItem = outfit.child(iitem)
+                    itemlist.append(f'{item.mod}|{item.form}')
+                outlist.append(itemlist)
+            skey = f'{source.mod}|{source.form}'
+            db[skey] = outlist
+
+        return json.dumps(db, indent=2)
 
 
 if __name__ == '__main__':
