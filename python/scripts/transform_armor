@@ -177,6 +177,7 @@ class ArmorWidget(QTreeWidget):
         self.setDragEnabled(True)
         self.slot_filter: Union[None, int] = None
         self.name_filter: Union[None, str] = None
+        self.show_enchanted: bool = True
 
     def contextMenuEvent(self, e: QtGui.QContextMenuEvent):
         menu = QMenu()
@@ -187,14 +188,15 @@ class ArmorWidget(QTreeWidget):
         textText = 'Filter name...' if self.name_filter is None else f'Clear name filter: ({self.name_filter}) '
         filterText = menu.addAction(textText)
 
+        enchantedText = '[X] Show enchanted' if self.show_enchanted else '[ ] Show enchanted'
+        filterEnchanted = menu.addAction(enchantedText)
+
         res = menu.exec_(e.globalPos())
         if res == filterSlots:
             if self.slot_filter:
                 self.slot_filter = None
             else:
                 self.slot_filter, _ = QInputDialog.getInt(self, 'Input', 'Enter slot to filter', value=32, min=30)
-
-            self.rerun_filters()
 
         if res == filterText:
             if self.name_filter:
@@ -203,13 +205,28 @@ class ArmorWidget(QTreeWidget):
                 self.name_filter, _ = QInputDialog.getText(self, 'Input', 'Enter name filter')
                 if not self.name_filter:
                     self.name_filter = None
-            self.rerun_filters()
+
+        if res == filterEnchanted:
+            self.show_enchanted = not self.show_enchanted
+
+        self.rerun_filters()
 
     def rerun_filters(self):
         self.clear_filters()
         self.filter_text()
         self.filter_slot()
+        self.filter_enchanted()
         self.filter_mods()
+
+    def filter_enchanted(self):
+        if self.show_enchanted:
+            return
+        for i in range(self.topLevelItemCount()):
+            mod: ModTree = self.topLevelItem(i)
+            for j in range(mod.childCount()):
+                armor = mod.child(j)
+                if armor.record['enchanted']:
+                    armor.setHidden(True)
 
     def filter_mods(self):
         for i in range(self.topLevelItemCount()):
