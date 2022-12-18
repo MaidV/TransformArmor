@@ -3,7 +3,7 @@ name = "transform_armor"
 description = "Manipulate transform data for 'Transform Armor' Skyrim mod"
 version = "0.0.1"
 authors = [ {name = "Maid V.", email = "maid.v@protonmail.com" } ]
-dependencies = [ "pyqt5" ]
+dependencies = [ "pyqt5", "requests" ]
 
 [tool.yapf]
 column_limit = 119
