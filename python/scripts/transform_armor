@@ -313,11 +313,23 @@ class ArmorWidget(QTreeWidget):
 
 class TransformSource(QTreeWidgetItem):
 
-    def __init__(self, mod, armor):
-        super(QTreeWidgetItem, self).__init__([mod, armor['name']])
+    def __init__(self, mod: str, sourcearmor: dict, transforms: dict):
+        super(QTreeWidgetItem, self).__init__([mod, sourcearmor['name']])
         self.mod = mod
-        self.form = armor['formID']
-        self.record = armor
+        self.form = sourcearmor['formID']
+        self.record = sourcearmor
+        self.nextoutfitid = 0
+
+        srcform = f'{self.mod}|{self.form}'
+
+        for outfitdict in transforms[srcform]:
+            outfit = TransformOutfit([str(self.nextoutfitid).rjust(3, '0'), ""])
+            for trgform in outfitdict:
+                outfit.add_armor(trgform)
+
+            self.addChild(outfit)
+
+            self.nextoutfitid += 1
 
 
 class TransformOutfit(QTreeWidgetItem):
@@ -358,18 +370,7 @@ class TransformWidget(QTreeWidget):
             (srcmod, srcarmor) = get_armor(srcform)
             if srcmod is None:
                 continue
-            row = TransformSource(srcmod, srcarmor)
-            row.setData(0, QtCore.Qt.UserRole, (srcmod, srcform.split('|')[1]))
-
-            # FIXME: Refactor so TransformOutfits are deletable from database
-            for i, outfit in enumerate(transforms[srcform]):
-                subrows = TransformOutfit([str(i).rjust(3, '0')])
-                for trgform in outfit:
-                    subrows.add_armor(trgform)
-
-                row.addChild(subrows)
-
-            rows.append(row)
+            rows.append(TransformSource(srcmod, srcarmor, transforms))
 
         for row in rows:
             self.addTopLevelItem(row)
@@ -384,7 +385,7 @@ class TransformWidget(QTreeWidget):
         deleteTransformSource = None
         deleteTransformOutfit = None
         if isinstance(selected, TransformSource):
-            payload = selected.data(0, QtCore.Qt.UserRole)
+            payload = (selected.mod, selected.form)
             deleteTransformSource = menu.addAction(f'Delete "{payload}"')
         if isinstance(selected, TransformOutfit):
             payload = selected.text(0)
