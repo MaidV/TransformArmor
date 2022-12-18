@@ -106,7 +106,6 @@ class MainWindow(QMainWindow):
                 self._aw.update_contents(armor_db)
                 self.openTransformAction.setEnabled(True)
                 update_armor_db(armor_db)
-
             except json.JSONDecodeError:
                 print("invalid json syntax (check for trailing commas, etc)")
             except ValueError:
@@ -151,6 +150,7 @@ class ArmorItem(QTreeWidgetItem):
     def __init__(self, mod: str, form: str, record: dict):
         super(QTreeWidgetItem, self).__init__([record['formID'], record['name']])
         self.add_properties(record)
+        self.record = record
         self.setData(0, QtCore.Qt.UserRole, (mod, form))
 
     def add_properties(self, record: dict):
@@ -175,6 +175,43 @@ class ArmorWidget(QTreeWidget):
     def __init__(self, data: dict = {}, parent: Union[None, QWidget] = None):
         super(QTreeWidget, self).__init__(parent)
         self.setDragEnabled(True)
+        self.slot_filter: Union[None, int] = None
+        self.text_filter: Union[None, str] = None
+
+    def contextMenuEvent(self, e: QtGui.QContextMenuEvent):
+        menu = QMenu()
+
+        slotText = '[ ] ' if self.slot_filter is None else '[X] '
+        slotText += 'Only show slot 32'
+        filterSlots = menu.addAction(slotText)
+
+        res = menu.exec_(e.globalPos())
+        if res == filterSlots:
+            if self.slot_filter:
+                self.slot_filter = None
+            else:
+                self.slot_filter = 32
+            self.rerun_filters()
+
+    def rerun_filters(self):
+        self.clear_filters()
+        self.filter_slot()
+
+    def clear_filters(self):
+        for i in range(self.topLevelItemCount()):
+            mod: ModTree = self.topLevelItem(i)
+            for j in range(mod.childCount()):
+                mod.child(j).setHidden(False)
+
+    def filter_slot(self):
+        if self.slot_filter is None:
+            return
+        for i in range(self.topLevelItemCount()):
+            mod: ModTree = self.topLevelItem(i)
+            for j in range(mod.childCount()):
+                armor = mod.child(j)
+                if self.slot_filter not in armor.record['slots']:
+                    armor.setHidden(True)
 
     def update_contents(self, data: dict):
         self.clear()
