@@ -12,6 +12,7 @@ import PyQt5.QtCore as QtCore
 
 _armor_db: dict = {}
 
+#FIXME ADD SERVER SUPPORT AGAIN! :D
 
 def update_armor_db(armors: dict):
     global _armor_db

@@ -126,6 +126,7 @@ set(headers
 
 set(sources
 	src/main.cpp
+	src/server.cpp
 	src/transform_utils.cpp
 	src/utils.cpp
 )
@@ -159,6 +160,7 @@ target_compile_options(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
 	PRIVATE 
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/mongoose>
         $<INSTALL_INTERFACE:src>
 )
 
