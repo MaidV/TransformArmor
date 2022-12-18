@@ -119,9 +119,9 @@ find_package(spdlog REQUIRED)
 # ---- Add source files ----
 
 set(headers
-	src/json.hpp
-	src/transform_utils.hpp
-	src/utils.hpp
+	include/json.hpp
+	include/transform_utils.hpp
+	include/utils.hpp
 )
 
 set(sources
@@ -159,7 +159,7 @@ target_compile_options(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
 	PRIVATE 
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/mongoose>
         $<INSTALL_INTERFACE:src>
 )
@@ -178,5 +178,5 @@ target_link_options(${PROJECT_NAME}
 
 target_precompile_headers(${PROJECT_NAME}
 	PRIVATE
-		src/PCH.h
+		include/PCH.h
 )
