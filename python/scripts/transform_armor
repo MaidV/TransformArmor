@@ -387,8 +387,8 @@ class TransformWidget(QTreeWidget):
             payload = selected.data(0, QtCore.Qt.UserRole)
             deleteTransformSource = menu.addAction(f'Delete "{payload}"')
         if isinstance(selected, TransformOutfit):
-            payload = selected.data(0, QtCore.Qt.UserRole)
-            deleteTransformOutfit = menu.addAction(f'Delete "{payload}"')
+            payload = selected.text(0)
+            deleteTransformOutfit = menu.addAction(f'Delete outfit "{payload}"')
 
         res = menu.exec_(e.globalPos())
         if deleteTransformSource and res == deleteTransformSource:
@@ -413,8 +413,7 @@ class TransformWidget(QTreeWidget):
         self.takeTopLevelItem(self.indexOfTopLevelItem(item))
 
     def remove_transform_outfit(self, outfit: TransformOutfit):
-        payload = outfit.data(0, QtCore.Qt.UserRole)
-        print(payload)
+        outfit.parent().removeChild(outfit)
 
     def to_file(self, path: str):
         with open(path, 'w') as file:
