@@ -249,7 +249,6 @@ void Outfit::Equip(Actor *actor, bool unequip, bool add_to_inventory) const {
 
 void TryOutfit(Actor *actor, const char *outfit_str, bool unequip) {
     try {
-        logger::info("{}", outfit_str);
         Outfit outfit = json::parse(outfit_str);
         outfit.Equip(actor, unequip, true);
     } catch (...) {

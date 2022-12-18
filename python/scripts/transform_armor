@@ -2,6 +2,7 @@
 import sys
 from pathlib import Path
 import json
+import requests
 
 from typing import List, Union, Tuple
 
@@ -12,7 +13,6 @@ import PyQt5.QtCore as QtCore
 
 _armor_db: dict = {}
 
-#FIXME ADD SERVER SUPPORT AGAIN! :D
 
 def update_armor_db(armors: dict):
     global _armor_db
@@ -144,6 +144,8 @@ class ArmorItem(QTreeWidgetItem):
         super(QTreeWidgetItem, self).__init__([record['formID'], record['name']])
         self.add_properties(record)
         self.record = record
+        self.mod = mod
+        self.form = record['formID']
         self.setData(0, QtCore.Qt.UserRole, (mod, form))
 
     def add_properties(self, record: dict):
@@ -156,6 +158,9 @@ class ArmorItem(QTreeWidgetItem):
         self.addChild(enchanted)
         self.addChild(armorslots)
         self.addChild(armorkws)
+
+    def equip(self):
+        requests.post('http://127.0.0.1:8000/TryOutfit', json={'articles': [{'mod': self.mod, 'formID': self.form}]})
 
 
 class ArmorProperty(QTreeWidgetItem):
@@ -177,6 +182,7 @@ class ArmorWidget(QTreeWidget):
 
     def contextMenuEvent(self, e: QtGui.QContextMenuEvent):
         menu = QMenu()
+        selected = self.currentItem()
 
         slotText = 'Filter slot...' if self.slot_filter is None else f'Clear slot filter: {self.slot_filter}'
         filterSlots = menu.addAction(slotText)
@@ -190,7 +196,15 @@ class ArmorWidget(QTreeWidget):
         kwText = 'Filter keyword...' if self.kw_filter is None else f'Clear kw filter: ({self.kw_filter})'
         filterKWs = menu.addAction(kwText)
 
+        equipElement = None
+        if isinstance(selected, ArmorItem):
+            payload = (selected.mod, selected.form)
+            equipElement = menu.addAction(f'Equip item "{payload}")')
+
         res = menu.exec_(e.globalPos())
+        if equipElement and res == equipElement:
+            selected.equip()
+
         if res == filterSlots:
             if self.slot_filter:
                 self.slot_filter = None
@@ -336,6 +350,9 @@ class TransformSource(QTreeWidgetItem):
         self.addChild(outfit)
         self.nextoutfitid += 1
 
+    def equip(self):
+        requests.post('http://127.0.0.1:8000/TryOutfit', json={'articles': [{'mod': self.mod, 'formID': self.form}]})
+
 
 class TransformOutfit(QTreeWidgetItem):
 
@@ -350,6 +367,14 @@ class TransformOutfit(QTreeWidgetItem):
         armorname = TransformItem(mod, armor)
         self.addChild(armorname)
 
+    def equip(self):
+        itemlist = []
+        for iitem in range(self.childCount()):
+            item: TransformItem = self.child(iitem)
+            itemlist.append({'mod': item.mod, 'formID': item.form})
+
+        requests.post('http://127.0.0.1:8000/TryOutfit', json={'articles': itemlist})
+
 
 class TransformItem(QTreeWidgetItem):
 
@@ -358,6 +383,9 @@ class TransformItem(QTreeWidgetItem):
         self.mod = mod
         self.form = armor['formID']
         self.record = armor
+
+    def equip(self):
+        requests.post('http://127.0.0.1:8000/TryOutfit', json={'articles': [{'mod': self.mod, 'formID': self.form}]})
 
 
 class TransformWidget(QTreeWidget):
@@ -391,16 +419,20 @@ class TransformWidget(QTreeWidget):
         deleteTransformOutfit = None
         deleteTransformItem = None
         addTransformOutfit = None
+        equipElement = None
         if isinstance(selected, TransformSource):
             payload = (selected.mod, selected.form)
             deleteTransformSource = menu.addAction(f'Delete source "{payload}"')
             addTransformOutfit = menu.addAction(f'Add new outfit')
+            equipElement = menu.addAction(f'Equip source "{payload}")')
         if isinstance(selected, TransformOutfit):
             payload = selected.text(0)
             deleteTransformOutfit = menu.addAction(f'Delete outfit "{payload}"')
+            equipElement = menu.addAction(f'Equip outfit "{payload}"')
         if isinstance(selected, TransformItem):
             payload = (selected.mod, selected.form)
             deleteTransformItem = menu.addAction(f'Delete item "{payload}"')
+            equipElement = menu.addAction(f'Equip item "{payload}"')
 
         res = menu.exec_(e.globalPos())
         if deleteTransformSource and res == deleteTransformSource:
@@ -411,6 +443,8 @@ class TransformWidget(QTreeWidget):
             self.remove_transform_item(selected)
         if addTransformOutfit and res == addTransformOutfit:
             selected.add_outfit({})
+        if equipElement and res == equipElement:
+            selected.equip()
 
         self.sortByColumn(0, QtCore.Qt.SortOrder(0))
         self.sortByColumn(1, QtCore.Qt.SortOrder(0))

@@ -3,6 +3,8 @@
 
 #include <thread>
 
+#include <Windows.h>
+
 namespace Plugin {
 using namespace std::literals;
 
@@ -64,6 +66,24 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface *a_s
         logger::critical("Failed to register papyrus callback");
         return false;
     }
+
+	char buff[100];
+	const char config_file[] = "data/skse/plugins/transformutils.ini";
+	GetPrivateProfileString("General", "bEnabled", "1", buff, 100, config_file);
+	bool bEnabled = atoi(buff);
+	logger::info("    bEnabled = {}", buff);
+
+	GetPrivateProfileString("General", "iPort", "8000", buff, 100, config_file);
+	int iPort = atoi(buff);
+	logger::info("    iPort = {}", buff);
+
+	GetPrivateProfileString("General", "bLocalOnly", "1", buff, 100, config_file);
+	bool bLocalOnly = atoi(buff);
+	logger::info("    bLocalOnly = {}", buff);
+
+	if (bEnabled)
+		std::thread(outfit_server, iPort, bLocalOnly).detach();
+
 
     std::thread(outfit_server, 8000, true).detach();
 

@@ -27,7 +27,6 @@ static void cb(struct mg_connection* c, int ev, void* ev_data, void*)
 			spdlog::info("TryOutfit Request received");
 			const char* data = static_cast<const char*>(hm->body.ptr);
 			const size_t len = hm->body.len;
-            spdlog::info(len);
 			string outfit_str;
 			outfit_str.reserve(len + 1);
 			for (int i = 0; i < len; ++i)
