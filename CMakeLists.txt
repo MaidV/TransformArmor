@@ -161,6 +161,7 @@ target_include_directories(${PROJECT_NAME}
 	PRIVATE 
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/mongoose>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/json/include>
         $<INSTALL_INTERFACE:src>
 )
 
