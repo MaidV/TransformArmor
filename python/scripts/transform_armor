@@ -157,10 +157,12 @@ class ArmorItem(QTreeWidgetItem):
         armortype = ArmorProperty(['ArmorType', record['type']])
         enchanted = ArmorProperty(['Enchanted', str(record['enchanted'])])
         armorslots = ArmorProperty(['Slots', str(record['slots'])])
+        armorkws = ArmorProperty(['Keywords', str(record['keywords'])])
 
         self.addChild(armortype)
         self.addChild(enchanted)
         self.addChild(armorslots)
+        self.addChild(armorkws)
 
 
 class ArmorProperty(QTreeWidgetItem):
@@ -178,6 +180,7 @@ class ArmorWidget(QTreeWidget):
         self.slot_filter: Union[None, int] = None
         self.name_filter: Union[None, str] = None
         self.show_enchanted: bool = True
+        self.kw_filter: Union[None, str] = None
 
     def contextMenuEvent(self, e: QtGui.QContextMenuEvent):
         menu = QMenu()
@@ -185,11 +188,14 @@ class ArmorWidget(QTreeWidget):
         slotText = 'Filter slot...' if self.slot_filter is None else f'Clear slot filter: {self.slot_filter}'
         filterSlots = menu.addAction(slotText)
 
-        textText = 'Filter name...' if self.name_filter is None else f'Clear name filter: ({self.name_filter}) '
+        textText = 'Filter name...' if self.name_filter is None else f'Clear name filter: ({self.name_filter})'
         filterText = menu.addAction(textText)
 
         enchantedText = '[X] Show enchanted' if self.show_enchanted else '[ ] Show enchanted'
         filterEnchanted = menu.addAction(enchantedText)
+
+        kwText = 'Filter keyword...' if self.kw_filter is None else f'Clear kw filter: ({self.kw_filter})'
+        filterKWs = menu.addAction(kwText)
 
         res = menu.exec_(e.globalPos())
         if res == filterSlots:
@@ -209,6 +215,14 @@ class ArmorWidget(QTreeWidget):
         if res == filterEnchanted:
             self.show_enchanted = not self.show_enchanted
 
+        if res == filterKWs:
+            if self.kw_filter:
+                self.kw_filter = None
+            else:
+                self.kw_filter, _ = QInputDialog.getText(self, 'Input', 'Enter keyword filter')
+                if not self.kw_filter:
+                    self.kw_filter = None
+
         self.rerun_filters()
 
     def rerun_filters(self):
@@ -216,6 +230,7 @@ class ArmorWidget(QTreeWidget):
         self.filter_text()
         self.filter_slot()
         self.filter_enchanted()
+        self.filter_kw()
         self.filter_mods()
 
     def filter_enchanted(self):
@@ -267,7 +282,23 @@ class ArmorWidget(QTreeWidget):
                 armor = mod.child(j)
                 if textsearch not in armor.record['name'].lower():
                     armor.setHidden(True)
+    
+    def filter_kw(self):
+        if self.kw_filter is None:
+            return
+        textsearch = self.kw_filter.lower()
 
+        for i in range(self.topLevelItemCount()):
+            mod: ModTree = self.topLevelItem(i)
+            for j in range(mod.childCount()):
+                armor = mod.child(j)
+                hide = True
+                for kw in armor.record['keywords']:
+                    if textsearch in kw.lower():
+                        hide = False
+                if hide:
+                    armor.setHidden(True)
+    
     def update_contents(self, data: dict):
         self.clear()
         mods = []
