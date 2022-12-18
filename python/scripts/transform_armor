@@ -34,6 +34,17 @@ def get_armor(abbr_key: Union[str, Tuple[str]]):
         return None, None
 
 
+def equip_item(mod: str, form: str):
+    equip_outfit([{'articles': [{'mod': mod, 'formID': form}]}])
+
+
+def equip_outfit(itemlist: List[dict]):
+    try:
+        requests.post('http://127.0.0.1:8000/TryOutfit', json={'articles': itemlist})
+    except requests.exceptions.ConnectionError:
+        print("Connection rejected. Is the game running?")
+
+
 class MainWindow(QMainWindow):
 
     def __init__(self, armor_file: str = "", transform_file: str = ""):
@@ -160,7 +171,7 @@ class ArmorItem(QTreeWidgetItem):
         self.addChild(armorkws)
 
     def equip(self):
-        requests.post('http://127.0.0.1:8000/TryOutfit', json={'articles': [{'mod': self.mod, 'formID': self.form}]})
+        equip_item(self.mod, self.form)
 
 
 class ArmorProperty(QTreeWidgetItem):
@@ -351,7 +362,7 @@ class TransformSource(QTreeWidgetItem):
         self.nextoutfitid += 1
 
     def equip(self):
-        requests.post('http://127.0.0.1:8000/TryOutfit', json={'articles': [{'mod': self.mod, 'formID': self.form}]})
+        equip_item(self.mod, self.form)
 
 
 class TransformOutfit(QTreeWidgetItem):
@@ -373,7 +384,7 @@ class TransformOutfit(QTreeWidgetItem):
             item: TransformItem = self.child(iitem)
             itemlist.append({'mod': item.mod, 'formID': item.form})
 
-        requests.post('http://127.0.0.1:8000/TryOutfit', json={'articles': itemlist})
+        equip_outfit(itemlist)
 
 
 class TransformItem(QTreeWidgetItem):
@@ -385,7 +396,7 @@ class TransformItem(QTreeWidgetItem):
         self.record = armor
 
     def equip(self):
-        requests.post('http://127.0.0.1:8000/TryOutfit', json={'articles': [{'mod': self.mod, 'formID': self.form}]})
+        equip_item(self.mod, self.form)
 
 
 class TransformWidget(QTreeWidget):
