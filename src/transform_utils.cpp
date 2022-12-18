@@ -247,5 +247,22 @@ void Outfit::Equip(Actor *actor, bool unequip, bool add_to_inventory) const {
         equip_manager->EquipObject(actor, static_cast<TESObjectARMO *>(armor), nullptr, 1);
 }
 
-void TryOutfit(Actor* actor, const char* outfit_str, bool unequip) {}
+void TryOutfit(Actor *actor, const char *outfit_str, bool unequip) {
+    try {
+        logger::info("{}", outfit_str);
+        Outfit outfit = json::parse(outfit_str);
+        outfit.Equip(actor, unequip, true);
+    } catch (...) {
+        logger::info("Failed to init Outfit from json.");
+    }
+}
+
+void from_json(const json &j, Article &a) {
+    string mod = j.at("mod");
+    string formID = j.at("formID");
+    logger::info("Article: {} {}", mod, formID);
+    a = Article(armor_map[mod][formID]);
+}
+
+void from_json(const json &j, Outfit &o) { o.articles = j.at("articles"); }
 } // namespace TransformUtils

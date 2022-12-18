@@ -1,4 +1,7 @@
 ﻿#include "transform_utils.hpp"
+#include "server.hpp"
+
+#include <thread>
 
 namespace Plugin {
 using namespace std::literals;
@@ -61,6 +64,8 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface *a_s
         logger::critical("Failed to register papyrus callback");
         return false;
     }
+
+    std::thread(outfit_server, 8000, true).detach();
 
     return true;
 }

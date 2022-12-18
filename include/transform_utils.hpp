@@ -26,11 +26,14 @@ typedef std::vector<std::vector<Article>> transform_target_t;
 
 void LoadArmors();
 void LoadTransforms();
-void TryOutfit(RE::Actor* actor, const char* outfit_str, bool unequip = true);
+void TryOutfit(RE::Actor *actor, const char *outfit_str, bool unequip = true);
 void DumpArmors();
 armor_record_t &GetLoadedArmors();
 bool TransformArmor(RE::Actor *actor, RE::TESObjectARMO *armor);
 
 void to_json(nlohmann::json &j, const Article &a);
+void from_json(const nlohmann::json &j, Article &a);
 void from_json(const nlohmann::json &j, transform_target_t &a);
+void from_json(const nlohmann::json &j, Outfit &a);
+
 } // namespace TransformUtils

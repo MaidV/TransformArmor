@@ -119,6 +119,7 @@ find_package(spdlog REQUIRED)
 # ---- Add source files ----
 
 set(headers
+	include/server.hpp
 	include/transform_utils.hpp
 	include/utils.hpp
 )
