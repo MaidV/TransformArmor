@@ -16,27 +16,25 @@ namespace TransformUtils {
 armor_record_t armor_map;
 unordered_map<string, transform_target_t> transform_map;
 
-static inline string armor_class(TESObjectARMO * armor) {
+static inline string armor_class(TESObjectARMO *armor) {
     using AT = BIPED_MODEL::ArmorType;
-    switch(armor->GetArmorType()) {
-        case (AT::kClothing): {
-            return "clothing";
-        }
-        case (AT::kLightArmor): {
-            return "light";
-        }
-        case (AT::kHeavyArmor): {
-            return "heavy";
-        }
+    switch (armor->GetArmorType()) {
+    case (AT::kClothing): {
+        return "clothing";
+    }
+    case (AT::kLightArmor): {
+        return "light";
+    }
+    case (AT::kHeavyArmor): {
+        return "heavy";
+    }
     }
     return string();
 }
 
 Article::Article(TESObjectARMO *armor)
-    : name(armor->GetFullName()),
-      formID(mask_form<int32_t, 6>(armor)),
-      slots(static_cast<int32_t>(armor->GetSlotMask())),
-      enchanted(static_cast<bool>(armor->formEnchanting)),
+    : name(armor->GetFullName()), formID(mask_form<int32_t, 6>(armor)),
+      slots(static_cast<int32_t>(armor->GetSlotMask())), enchanted(static_cast<bool>(armor->formEnchanting)),
       form(armor){};
 
 void LoadArmors() {
@@ -144,7 +142,14 @@ void to_json(json &j, const Article &a) {
         if (a.slots >> i & 1)
             slots.push_back((uint8_t)(i + 30));
     }
-    j = json{{"name", a.name}, {"formID", mask_form<string, 6>(a.form)}, {"slots", slots}, {"enchanted", a.enchanted}, {"type", armor_class(a.form)}, };
+    j = json{
+        {"name", a.name},
+        {"formID", mask_form<string, 6>(a.form)},
+        {"slots", slots},
+        {"enchanted", a.enchanted},
+        {"type", armor_class(a.form)},
+        {"keywords", GetKeywordStrings(a.form)},
+    };
 }
 
 void LoadTransforms() {

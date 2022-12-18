@@ -1,6 +1,7 @@
 #include "utils.hpp"
 
 #include <mutex>
+#include <set>
 
 using namespace RE;
 using std::string;
@@ -64,3 +65,19 @@ std::pair<string, string> split_string(const string &str) {
     string id = str.substr(index + 1, str.length() - index - 1);
     return std::make_pair(mod, id);
 };
+
+vector<string> GetKeywordStrings(TESForm *form) {
+    // Get set of  keywords for worn items
+    std::set<std::string> resset;
+    if (const auto keywordForm = form->As<RE::BGSKeywordForm>()) {
+        for (uint32_t i = 0; i < keywordForm->numKeywords; i++) {
+            resset.insert(string(keywordForm->keywords[i]->GetFormEditorID()));
+        }
+    }
+    vector<string> res;
+    for (auto &el : resset) {
+        res.push_back(el);
+    }
+
+    return res;
+}

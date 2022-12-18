@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+std::vector<std::string> GetKeywordStrings(RE::TESForm *form);
+
 template <typename T, uint32_t L>
 T mask_form(RE::TESForm *form) {
     using std::string;
@@ -29,4 +31,5 @@ std::pair<std::string, std::string> split_string(const std::string &str);
 namespace KeywordUtil {
 RE::BGSKeyword *GetKeyword(const std::string &keywordname);
 bool HasKeywords(RE::TESObjectARMO *form, std::vector<RE::BGSKeyword *> &keywords);
+
 } // namespace KeywordUtil
