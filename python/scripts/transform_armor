@@ -6,7 +6,7 @@ import json
 from typing import List, Union, Tuple
 
 from PyQt5.QtWidgets import (QTreeWidget, QTreeWidgetItem, QApplication, QWidget, QMainWindow, QAction, qApp,
-                             QFileDialog, QHBoxLayout, QMenu)
+                             QFileDialog, QHBoxLayout, QMenu, QInputDialog)
 from PyQt5 import QtGui
 import PyQt5.QtCore as QtCore
 
@@ -176,30 +176,54 @@ class ArmorWidget(QTreeWidget):
         super(QTreeWidget, self).__init__(parent)
         self.setDragEnabled(True)
         self.slot_filter: Union[None, int] = None
-        self.text_filter: Union[None, str] = None
+        self.name_filter: Union[None, str] = None
 
     def contextMenuEvent(self, e: QtGui.QContextMenuEvent):
         menu = QMenu()
 
-        slotText = '[ ] ' if self.slot_filter is None else '[X] '
-        slotText += 'Only show slot 32'
+        slotText = 'Filter slot...' if self.slot_filter is None else f'Clear slot filter: {self.slot_filter}'
         filterSlots = menu.addAction(slotText)
+
+        textText = 'Filter name...' if self.name_filter is None else f'Clear name filter: ({self.name_filter}) '
+        filterText = menu.addAction(textText)
 
         res = menu.exec_(e.globalPos())
         if res == filterSlots:
             if self.slot_filter:
                 self.slot_filter = None
             else:
-                self.slot_filter = 32
+                self.slot_filter, _ = QInputDialog.getInt(self, 'Input', 'Enter slot to filter', value=32, min=30)
+
+            self.rerun_filters()
+
+        if res == filterText:
+            if self.name_filter:
+                self.name_filter = None
+            else:
+                self.name_filter, _ = QInputDialog.getText(self, 'Input', 'Enter name filter')
             self.rerun_filters()
 
     def rerun_filters(self):
         self.clear_filters()
+        self.filter_text()
         self.filter_slot()
+        self.filter_mods()
+
+    def filter_mods(self):
+        for i in range(self.topLevelItemCount()):
+            mod: ModTree = self.topLevelItem(i)
+            allhidden = True
+            for j in range(mod.childCount()):
+                if not mod.child(j).isHidden():
+                    allhidden = False
+                    continue
+            if allhidden:
+                mod.setHidden(True)
 
     def clear_filters(self):
         for i in range(self.topLevelItemCount()):
             mod: ModTree = self.topLevelItem(i)
+            mod.setHidden(False)
             for j in range(mod.childCount()):
                 mod.child(j).setHidden(False)
 
@@ -211,6 +235,18 @@ class ArmorWidget(QTreeWidget):
             for j in range(mod.childCount()):
                 armor = mod.child(j)
                 if self.slot_filter not in armor.record['slots']:
+                    armor.setHidden(True)
+
+    def filter_text(self):
+        if self.name_filter is None:
+            return
+        textsearch = self.name_filter.lower()
+
+        for i in range(self.topLevelItemCount()):
+            mod: ModTree = self.topLevelItem(i)
+            for j in range(mod.childCount()):
+                armor = mod.child(j)
+                if textsearch not in armor.record['name'].lower():
                     armor.setHidden(True)
 
     def update_contents(self, data: dict):
@@ -346,7 +382,6 @@ class TransformWidget(QTreeWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    print(sys.argv[1:])
     w = MainWindow(*sys.argv[1:])
     w.show()
 
