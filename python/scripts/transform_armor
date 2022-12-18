@@ -320,9 +320,11 @@ class TransformSource(QTreeWidgetItem):
         self.record = sourcearmor
         self.nextoutfitid = 0
 
-        srcform = f'{self.mod}|{self.form}'
+        if not transforms:
+            self.add_outfit({})
+            return
 
-        for outfitdict in transforms[srcform]:
+        for outfitdict in transforms:
             self.add_outfit(outfitdict)
 
     def add_outfit(self, outfitdict: dict):
@@ -372,7 +374,7 @@ class TransformWidget(QTreeWidget):
             (srcmod, srcarmor) = get_armor(srcform)
             if srcmod is None:
                 continue
-            rows.append(TransformSource(srcmod, srcarmor, transforms))
+            rows.append(TransformSource(srcmod, srcarmor, transforms[srcform]))
 
         for row in rows:
             self.addTopLevelItem(row)
@@ -387,9 +389,11 @@ class TransformWidget(QTreeWidget):
         deleteTransformSource = None
         deleteTransformOutfit = None
         deleteTransformItem = None
+        addTransformOutfit = None
         if isinstance(selected, TransformSource):
             payload = (selected.mod, selected.form)
             deleteTransformSource = menu.addAction(f'Delete source "{payload}"')
+            addTransformOutfit = menu.addAction(f'Add new outfit')
         if isinstance(selected, TransformOutfit):
             payload = selected.text(0)
             deleteTransformOutfit = menu.addAction(f'Delete outfit "{payload}"')
@@ -404,6 +408,24 @@ class TransformWidget(QTreeWidget):
             self.remove_transform_outfit(selected)
         if deleteTransformItem and res == deleteTransformItem:
             self.remove_transform_item(selected)
+        if addTransformOutfit and res == addTransformOutfit:
+            selected.add_outfit({})
+
+        self.sortByColumn(0, QtCore.Qt.SortOrder(0))
+        self.sortByColumn(1, QtCore.Qt.SortOrder(0))
+
+    def add_source(self, mod, form):
+        (srcmod, srcarmor) = get_armor((mod, form))
+        if not 32 in srcarmor['slots']:
+            print("Slot 32 currently required")
+            return
+        for isource in range(self.topLevelItemCount()):
+            source: TransformSource = self.topLevelItem(isource)
+            if mod == source.mod and form == source.form:
+                print("Source already exists")
+                return
+
+        self.addTopLevelItem(TransformSource(srcmod, srcarmor, {}))
 
     def dropEvent(self, e: QtGui.QDropEvent) -> None:
         source = e.source().currentItem()
@@ -412,10 +434,13 @@ class TransformWidget(QTreeWidget):
             mod, form = source.data(0, QtCore.Qt.UserRole)
             if isinstance(target, TransformItem):
                 target = target.parent()
-            elif isinstance(target, TransformSource):
-                return
-
-            target.add_armor('|'.join((mod, form)))
+                target.add_armor('|'.join((mod, form)))
+            elif isinstance(target, TransformOutfit):
+                target.add_armor('|'.join((mod, form)))
+            elif isinstance(target, TransformSource) or isinstance(target, TransformWidget):
+                self.add_source(mod, form)
+                self.sortByColumn(0, QtCore.Qt.SortOrder(0))
+                self.sortByColumn(1, QtCore.Qt.SortOrder(0))
 
     def remove_transform_source(self, item: TransformSource):
         payload = item.data(0, QtCore.Qt.UserRole)
