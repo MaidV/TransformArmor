@@ -323,13 +323,15 @@ class TransformSource(QTreeWidgetItem):
         srcform = f'{self.mod}|{self.form}'
 
         for outfitdict in transforms[srcform]:
-            outfit = TransformOutfit([str(self.nextoutfitid).rjust(3, '0'), ""])
-            for trgform in outfitdict:
-                outfit.add_armor(trgform)
+            self.add_outfit(outfitdict)
 
-            self.addChild(outfit)
+    def add_outfit(self, outfitdict: dict):
+        outfit = TransformOutfit([str(self.nextoutfitid).rjust(3, '0'), ""])
+        for trgform in outfitdict:
+            outfit.add_armor(trgform)
 
-            self.nextoutfitid += 1
+        self.addChild(outfit)
+        self.nextoutfitid += 1
 
 
 class TransformOutfit(QTreeWidgetItem):
@@ -384,18 +386,24 @@ class TransformWidget(QTreeWidget):
 
         deleteTransformSource = None
         deleteTransformOutfit = None
+        deleteTransformItem = None
         if isinstance(selected, TransformSource):
             payload = (selected.mod, selected.form)
-            deleteTransformSource = menu.addAction(f'Delete "{payload}"')
+            deleteTransformSource = menu.addAction(f'Delete source "{payload}"')
         if isinstance(selected, TransformOutfit):
             payload = selected.text(0)
             deleteTransformOutfit = menu.addAction(f'Delete outfit "{payload}"')
+        if isinstance(selected, TransformItem):
+            payload = (selected.mod, selected.form)
+            deleteTransformItem = menu.addAction(f'Delete item "{payload}"')
 
         res = menu.exec_(e.globalPos())
         if deleteTransformSource and res == deleteTransformSource:
             self.remove_transform_source(selected)
         if deleteTransformOutfit and res == deleteTransformOutfit:
             self.remove_transform_outfit(selected)
+        if deleteTransformItem and res == deleteTransformItem:
+            self.remove_transform_item(selected)
 
     def dropEvent(self, e: QtGui.QDropEvent) -> None:
         source = e.source().currentItem()
@@ -407,14 +415,17 @@ class TransformWidget(QTreeWidget):
             elif isinstance(target, TransformSource):
                 return
 
-            target.add_armor(mod, form)
+            target.add_armor('|'.join((mod, form)))
 
-    def remove_transform_source(self, item: TransformItem):
+    def remove_transform_source(self, item: TransformSource):
         payload = item.data(0, QtCore.Qt.UserRole)
         self.takeTopLevelItem(self.indexOfTopLevelItem(item))
 
     def remove_transform_outfit(self, outfit: TransformOutfit):
         outfit.parent().removeChild(outfit)
+
+    def remove_transform_item(self, item: TransformItem):
+        item.parent().removeChild(item)
 
     def to_file(self, path: str):
         with open(path, 'w') as file:
