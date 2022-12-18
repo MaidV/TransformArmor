@@ -26,6 +26,7 @@ typedef std::vector<std::vector<Article>> transform_target_t;
 
 void LoadArmors();
 void LoadTransforms();
+void TryOutfit(RE::Actor* actor, const char* outfit_str, bool unequip = true);
 void DumpArmors();
 armor_record_t &GetLoadedArmors();
 bool TransformArmor(RE::Actor *actor, RE::TESObjectARMO *armor);

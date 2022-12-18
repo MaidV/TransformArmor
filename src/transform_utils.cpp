@@ -246,4 +246,6 @@ void Outfit::Equip(Actor *actor, bool unequip, bool add_to_inventory) const {
     for (auto &armor : to_equip)
         equip_manager->EquipObject(actor, static_cast<TESObjectARMO *>(armor), nullptr, 1);
 }
+
+void TryOutfit(Actor* actor, const char* outfit_str, bool unequip) {}
 } // namespace TransformUtils

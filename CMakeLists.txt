@@ -9,7 +9,7 @@ set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
 project(
 	TransformUtils
 	VERSION 0.0.1
-	LANGUAGES CXX
+	LANGUAGES C CXX
 )
 
 configure_file(
@@ -119,7 +119,6 @@ find_package(spdlog REQUIRED)
 # ---- Add source files ----
 
 set(headers
-	include/json.hpp
 	include/transform_utils.hpp
 	include/utils.hpp
 )
@@ -129,6 +128,7 @@ set(sources
 	src/server.cpp
 	src/transform_utils.cpp
 	src/utils.cpp
+	extern/mongoose/mongoose.c
 )
 
 source_group(
@@ -179,5 +179,5 @@ target_link_options(${PROJECT_NAME}
 
 target_precompile_headers(${PROJECT_NAME}
 	PRIVATE
-		include/PCH.h
+		$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/include/PCH.h>
 )
