@@ -4,6 +4,7 @@
 /python/build
 /python/dist
 /python/transform_armor.spec
+/python/testing
 /.ccls-cache
 /.vscode
 /.ccls
@@ -29,3 +30,4 @@ tags
 *Notes*
 
 /skyrim
+/Scripts
