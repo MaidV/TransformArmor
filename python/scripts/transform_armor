@@ -201,6 +201,8 @@ class ArmorWidget(QTreeWidget):
                 self.name_filter = None
             else:
                 self.name_filter, _ = QInputDialog.getText(self, 'Input', 'Enter name filter')
+                if not self.name_filter:
+                    self.name_filter = None
             self.rerun_filters()
 
     def rerun_filters(self):
